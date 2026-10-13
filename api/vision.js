@@ -7,9 +7,9 @@ const client = new OpenAI({
 
 export default async function handler(req, res) {
 
-  if(req.method !== "POST"){
+  if (req.method !== "POST") {
     return res.status(405).json({
-      error:"Method not allowed"
+      error: "Method not allowed"
     });
   }
 
@@ -23,40 +23,39 @@ export default async function handler(req, res) {
 
       model: "gpt-6.1-sol",
 
-      input:[
-
+      input: [
         {
-          role:"user",
+          role: "user",
 
-          content:[
+          content: [
 
             {
-              type:"input_text",
+              type: "input_text",
 
-              text:`
+              text: `
 你是一个AI旅行汇率助手。
 
-分析图片。
+分析图片中的价格。
 
-返回JSON：
+返回JSON，不要解释：
 
 {
- country:"",
- currency:"",
- symbol:"",
- amount:"",
- items:[]
- }
+ "country":"",
+ "currency":"",
+ "symbol":"",
+ "amount":"",
+ "items":[]
+}
 
 要求：
-1. 判断国家
-2. 判断货币
-3. 找出价格
-4. 如果是小票，列出商品
 
-只返回JSON。
+1. 判断图片所在国家
+2. 判断货币
+3. 提取价格
+4. 如果是菜单或小票，列出商品
 `
             },
+
 
             {
               type:"input_image",
@@ -64,25 +63,22 @@ export default async function handler(req, res) {
             }
 
           ]
-
         }
-
       ]
 
     });
 
 
-    return res.status(200).json({
+    res.status(200).json({
 
-      result:
-      response.output_text
+      result: response.output_text
 
     });
 
 
   } catch(error){
 
-    return res.status(500).json({
+    res.status(500).json({
 
       error:error.message
 
