@@ -13,23 +13,117 @@ baseURL:
 
 
 
-async function getRate(currency){
+// 汇率缓存
+let rateCache={};
+
+
+
+const currencyMap={
+
+
+"Indonesian rupiah":"IDR",
+"rupiah":"IDR",
+"印尼盾":"IDR",
+
+"US dollar":"USD",
+"dollar":"USD",
+"美元":"USD",
+
+"Japanese yen":"JPY",
+"yen":"JPY",
+"日元":"JPY",
+
+"Chinese yuan":"CNY",
+"人民币":"CNY",
+
+"Euro":"EUR",
+"欧元":"EUR",
+
+"British pound":"GBP",
+"英镑":"GBP",
+
+"Korean won":"KRW",
+"韩元":"KRW"
+
+};
+
+
+
+
+
+async function normalizeCurrency(name){
+
+
+if(!name)return null;
+
+
+if(name.length===3){
+
+return name.toUpperCase();
+
+}
+
+
+for(let key in currencyMap){
+
+if(
+name.toLowerCase()
+.includes(
+key.toLowerCase()
+)
+){
+
+return currencyMap[key];
+
+}
+
+}
+
+
+return name;
+
+}
+
+
+
+
+
+async function getRate(code){
+
+
+if(rateCache[code]){
+
+return rateCache[code];
+
+}
 
 
 try{
 
 
-let r=
+let res=
 await fetch(
-`https://open.er-api.com/v6/latest/${currency}`
+`https://open.er-api.com/v6/latest/${code}`
 );
 
 
-let d=
-await r.json();
+
+let data=
+await res.json();
 
 
-return d.rates.CNY;
+
+let rate=
+data.rates.CNY;
+
+
+
+rateCache[code]=rate;
+
+
+
+return rate;
+
 
 
 }catch(e){
@@ -38,12 +132,13 @@ return null;
 
 }
 
-
 }
 
 
 
+
 export default async function handler(req,res){
+
 
 
 if(req.method!=="POST"){
@@ -65,8 +160,7 @@ const {image}=req.body;
 
 
 
-const response =
-
+const ai=
 await client.chat.completions.create({
 
 
@@ -75,11 +169,11 @@ model:"gpt-6-luna",
 
 
 
-temperature:0,
-
-
-
 max_tokens:200,
+
+
+
+temperature:0,
 
 
 
@@ -96,7 +190,7 @@ content:
 
 识别图片。
 
-只输出JSON:
+返回JSON:
 
 {
 country:"",
@@ -105,7 +199,14 @@ symbol:"",
 amount:""
 }
 
-不要解释。
+currency必须返回英文货币名称。
+
+例如：
+Indonesian rupiah
+US dollar
+Japanese yen
+
+只返回JSON。
 `
 
 },
@@ -122,7 +223,7 @@ content:[
 
 type:"text",
 
-text:"识别图片里的货币和金额"
+text:"识别图片价格"
 
 },
 
@@ -150,55 +251,65 @@ url:image
 
 
 
-let content=
-response.choices[0].message.content;
+
+let text=
+ai.choices[0].message.content;
 
 
 
-content=
-content
-.replace(/```json/g,"")
+text=
+text.replace(/```json/g,"")
 .replace(/```/g,"")
 .trim();
 
 
 
-let data;
+let data=
+JSON.parse(text);
 
 
-try{
-
-data=JSON.parse(content);
-
-}catch{
-
-data={
-raw:content
-};
-
-}
 
 
+//标准化货币
+
+
+let code=
+await normalizeCurrency(
+data.currency
+);
+
+
+
+data.currencyCode=code;
+
+
+
+
+//人民币换算
 
 
 if(
-data.currency &&
+code &&
 data.amount
 ){
 
 
 let rate=
-await getRate(data.currency);
+await getRate(code);
+
 
 
 if(rate){
 
 data.cny=
+
 (
 Number(data.amount)
 *
 rate
+
 ).toFixed(2);
+
 
 }
 
@@ -213,8 +324,6 @@ return res.json(data);
 
 }catch(e){
 
-
-console.log(e);
 
 
 return res.status(500).json({
