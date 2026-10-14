@@ -9,7 +9,7 @@
 
 
 <title>
-AI旅行汇率助手
+AI旅行汇率助手 V9
 </title>
 
 
@@ -27,9 +27,14 @@ margin:0;
 min-height:100vh;
 
 background:
-linear-gradient(135deg,#dbeafe,#ede9fe);
+linear-gradient(
+135deg,
+#dbeafe,
+#ede9fe
+);
 
 font-family:
+
 -apple-system,
 BlinkMacSystemFont,
 "Microsoft YaHei";
@@ -44,7 +49,7 @@ max-width:430px;
 
 margin:auto;
 
-padding:25px;
+padding:20px;
 
 }
 
@@ -54,20 +59,21 @@ padding:25px;
 
 font-size:30px;
 
-font-weight:800;
+font-weight:900;
 
-margin-bottom:25px;
+margin:15px 0 25px;
 
 }
 
 
 
-.box{
+.glass{
 
 background:
-rgba(255,255,255,.75);
+rgba(255,255,255,.72);
 
-backdrop-filter:blur(20px);
+backdrop-filter:
+blur(25px);
 
 border-radius:30px;
 
@@ -76,7 +82,7 @@ padding:22px;
 margin-bottom:20px;
 
 box-shadow:
-0 15px 40px rgba(0,0,0,.12);
+0 20px 50px rgba(0,0,0,.12);
 
 }
 
@@ -84,11 +90,13 @@ box-shadow:
 
 .photo{
 
-height:260px;
+height:250px;
 
 border-radius:25px;
 
-background:#f8fafc;
+overflow:hidden;
+
+border:2px dashed #60a5fa;
 
 display:flex;
 
@@ -96,9 +104,7 @@ align-items:center;
 
 justify-content:center;
 
-overflow:hidden;
-
-border:2px dashed #93c5fd;
+background:white;
 
 }
 
@@ -116,7 +122,7 @@ object-fit:cover;
 
 
 
-input{
+input[type=file]{
 
 display:none;
 
@@ -124,26 +130,50 @@ display:none;
 
 
 
-.btn{
+button{
 
 width:100%;
 
-height:58px;
-
-margin-top:20px;
+height:55px;
 
 border:0;
 
 border-radius:30px;
 
 background:
-linear-gradient(135deg,#2563eb,#4f46e5);
+linear-gradient(
+135deg,
+#2563eb,
+#4f46e5
+);
 
 color:white;
 
-font-size:18px;
+font-size:17px;
 
 font-weight:bold;
+
+margin-top:15px;
+
+}
+
+
+
+select,input{
+
+width:100%;
+
+height:45px;
+
+border-radius:15px;
+
+border:1px solid #ddd;
+
+padding:10px;
+
+margin-top:10px;
+
+font-size:16px;
 
 }
 
@@ -151,9 +181,43 @@ font-weight:bold;
 
 .result{
 
-font-size:17px;
-
 line-height:1.8;
+
+font-size:16px;
+
+}
+
+
+
+.flag{
+
+font-size:55px;
+
+}
+
+
+
+.money{
+
+font-size:32px;
+
+font-weight:900;
+
+color:#16a34a;
+
+}
+
+
+
+.history-item{
+
+background:#f8fafc;
+
+padding:15px;
+
+border-radius:18px;
+
+margin-top:10px;
 
 }
 
@@ -169,31 +233,14 @@ color:#2563eb;
 
 
 
-.money{
+.small{
 
-font-size:34px;
+font-size:13px;
 
-font-weight:800;
-
-color:#16a34a;
+color:#64748b;
 
 }
 
-
-
-.flag{
-
-font-size:55px;
-
-}
-
-
-
-.error{
-
-color:#dc2626;
-
-}
 
 
 </style>
@@ -202,10 +249,12 @@ color:#dc2626;
 </head>
 
 
+
 <body>
 
 
 <div class="container">
+
 
 
 <div class="title">
@@ -216,7 +265,8 @@ color:#dc2626;
 
 
 
-<div class="box">
+
+<div class="glass">
 
 
 <label class="photo" for="file">
@@ -225,14 +275,15 @@ color:#dc2626;
 <img id="preview">
 
 
-<span id="tip">
+<div id="empty">
 
-📷 点击上传照片
+📷 点击拍照
 
-</span>
+</div>
 
 
 </label>
+
 
 
 <input
@@ -247,15 +298,18 @@ capture="environment">
 
 
 
-<button
+<button id="scan">
 
-id="scanBtn"
-
-class="btn">
-
-🤖 识别价格
+🤖 OCR + AI识别
 
 </button>
+
+
+<div class="small">
+
+OCR快速读取数字，AI确认国家和货币
+
+</div>
 
 
 </div>
@@ -263,7 +317,90 @@ class="btn">
 
 
 
-<div class="box">
+
+<div class="glass">
+
+
+<h3>
+
+💱 转换目标货币
+
+</h3>
+
+
+
+<select id="currency">
+
+
+<option value="CNY">
+
+🇨🇳 人民币 CNY
+
+</option>
+
+
+<option value="USD">
+
+🇺🇸 美元 USD
+
+</option>
+
+
+<option value="EUR">
+
+🇪🇺 欧元 EUR
+
+</option>
+
+
+<option value="JPY">
+
+🇯🇵 日元 JPY
+
+</option>
+
+
+<option value="GBP">
+
+🇬🇧 英镑 GBP
+
+</option>
+
+
+<option value="KRW">
+
+🇰🇷 韩元 KRW
+
+</option>
+
+
+</select>
+
+
+
+<input
+
+id="custom"
+
+placeholder="输入其它货币，例如 CAD / AUD / THB">
+
+
+
+<button id="convert">
+
+🔄 转换货币
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+<div class="glass">
 
 
 <div id="result" class="result">
@@ -273,11 +410,8 @@ class="btn">
 </div>
 
 
-<button
 
-id="voiceBtn"
-
-class="btn">
+<button id="voice">
 
 🔊 播报结果
 
@@ -288,67 +422,80 @@ class="btn">
 
 
 
+
+<div class="glass">
+
+
+<h3>
+
+🕘 最近记录
+
+</h3>
+
+
+
+<div id="history">
+
+暂无记录
+
 </div>
+
+
+</div>
+
+
+
+</div>
+
+
+
 
 
 
 <script>
 
 
-document.addEventListener(
-"DOMContentLoaded",
-()=>{
-
-
 let imageBase64="";
+
+let currentData=null;
 
 let voiceText="";
 
 
 
-const file =
+
+
+const file=
 document.getElementById("file");
 
 
-const preview =
+const preview=
 document.getElementById("preview");
 
 
-const tip =
-document.getElementById("tip");
+const empty=
+document.getElementById("empty");
 
 
-const scanBtn =
-document.getElementById("scanBtn");
-
-
-const result =
+const result=
 document.getElementById("result");
 
 
-const voiceBtn =
-document.getElementById("voiceBtn");
 
-
-
-
-//选择图片
+/*
+上传图片 + 压缩
+*/
 
 
 file.addEventListener(
 "change",
-function(){
+e=>{
 
 
+let f=e.target.files[0];
 
-let imgFile=this.files[0];
 
-
-if(!imgFile){
-
-return;
-
-}
+if(!f)return;
 
 
 
@@ -357,16 +504,14 @@ new FileReader();
 
 
 
-reader.onload=function(e){
-
+reader.onload=e=>{
 
 
 let img=new Image();
 
 
 
-img.onload=function(){
-
+img.onload=()=>{
 
 
 let canvas=
@@ -377,12 +522,12 @@ document.createElement("canvas");
 let max=900;
 
 
+
 let scale=max/img.width;
 
 
 
 canvas.width=max;
-
 
 canvas.height=
 img.height*scale;
@@ -393,18 +538,13 @@ let ctx=
 canvas.getContext("2d");
 
 
+
 ctx.drawImage(
-
 img,
-
 0,
-
 0,
-
 canvas.width,
-
 canvas.height
-
 );
 
 
@@ -419,8 +559,7 @@ canvas.toDataURL(
 
 preview.src=imageBase64;
 
-
-tip.style.display="none";
+empty.style.display="none";
 
 
 }
@@ -430,13 +569,11 @@ tip.style.display="none";
 img.src=e.target.result;
 
 
-
 }
 
 
 
-reader.readAsDataURL(imgFile);
-
+reader.readAsDataURL(f);
 
 
 });
@@ -445,18 +582,44 @@ reader.readAsDataURL(imgFile);
 
 
 
-//识别按钮
+/*
+OCR模拟快速层
+
+提取图片已有数字
+后续可接Tesseract
+*/
 
 
-scanBtn.addEventListener(
-"click",
-async function(){
+function quickOCR(){
 
+
+return {
+
+numbers:""
+
+};
+
+
+}
+
+
+
+
+
+
+/*
+AI识别
+*/
+
+
+document
+.getElementById("scan")
+.onclick=async()=>{
 
 
 if(!imageBase64){
 
-alert("请先上传照片");
+alert("请先拍照");
 
 return;
 
@@ -470,11 +633,11 @@ result.innerHTML=
 
 <div class="loading">
 
-🤖 AI正在识别...
+🔎 OCR扫描...
 
 <br>
 
-请等待
+🤖 AI分析中...
 
 </div>
 
@@ -482,30 +645,14 @@ result.innerHTML=
 
 
 
-scanBtn.innerHTML=
-"分析中...";
-
-
-
 try{
 
 
-let controller=
-new AbortController();
-
-
-let timer=
-setTimeout(
-()=>controller.abort(),
-60000
-);
-
-
-
-let response=
+let res=
 await fetch(
 "/api/vision",
 {
+
 
 method:"POST",
 
@@ -516,44 +663,78 @@ headers:{
 
 },
 
+
 body:JSON.stringify({
 
-image:imageBase64
+image:imageBase64,
 
-}),
+ocr:quickOCR()
 
-signal:
-controller.signal
+})
+
 
 });
 
 
-clearTimeout(timer);
-
-
 
 let data=
-await response.json();
-
-
-
-console.log(data);
+await res.json();
 
 
 
 if(data.error){
 
-throw new Error(data.error);
+throw Error(data.error);
 
 }
+
+
+
+currentData=data;
+
+
+
+showResult(data);
+
+
+
+saveHistory(data);
+
+
+
+}
+
+
+catch(e){
+
+
+result.innerHTML=
+
+"❌ "+e.message;
+
+
+}
+
+
+
+};
+
+
+
+
+
+
+function showResult(data){
 
 
 
 let flag="🌍";
 
 
-const countryFlag={
 
+let flags={
+
+Indonesia:"🇮🇩",
 
 China:"🇨🇳",
 
@@ -565,20 +746,17 @@ USA:"🇺🇸",
 
 Korea:"🇰🇷",
 
-France:"🇫🇷",
-
-Germany:"🇩🇪"
+France:"🇫🇷"
 
 };
 
 
 
-if(countryFlag[data.country]){
+if(flags[data.country])
 
-flag=
-countryFlag[data.country];
+flag=flags[data.country];
 
-}
+
 
 
 
@@ -601,25 +779,28 @@ ${flag}
 
 国家：
 
-${data.country || "-"}
+${data.country}
+
 
 <br>
 
 
 货币：
 
-${data.currency || "-"}
-
-<br><br>
+${data.currency}
 
 
-原价：
+<br>
+
+
+金额：
 
 <h2>
 
-${data.symbol || ""}${data.amount || "-"}
+${data.symbol || ""}${data.amount}
 
 </h2>
+
 
 
 人民币：
@@ -637,22 +818,95 @@ ${data.symbol || ""}${data.amount || "-"}
 }
 
 
-catch(err){
 
 
-result.innerHTML=
+
+/*
+自定义货币转换
+*/
+
+
+document
+.getElementById("convert")
+.onclick=async()=>{
+
+
+if(!currentData){
+
+alert("请先识别");
+
+return;
+
+}
+
+
+
+let target=
+document.getElementById("custom").value
+||
+document.getElementById("currency").value;
+
+
+
+let from=
+currentData.currencyCode;
+
+
+
+let amount=
+Number(currentData.amount);
+
+
+
+try{
+
+
+let r=
+await fetch(
+
+`https://open.er-api.com/v6/latest/${from}`
+
+);
+
+
+
+let d=
+await r.json();
+
+
+
+let rate=
+d.rates[target];
+
+
+
+let value=
+(
+amount*rate
+
+).toFixed(2);
+
+
+
+result.innerHTML+=
 
 `
 
-<div class="error">
+<hr>
 
-❌ 识别失败
+转换：
 
-<br><br>
+${target}
 
-${err.message}
+<br>
 
-</div>
+<b>
+
+${value}
+
+${target}
+
+</b>
 
 `;
 
@@ -660,29 +914,147 @@ ${err.message}
 
 }
 
+catch{
+
+alert("转换失败");
+
+}
 
 
-scanBtn.innerHTML=
-"🤖 识别价格";
+};
 
 
+
+
+
+
+/*
+历史记录
+*/
+
+
+function saveHistory(data){
+
+
+let list=
+JSON.parse(
+localStorage.history||"[]"
+);
+
+
+
+list.unshift({
+
+country:data.country,
+
+currency:data.currency,
+
+amount:data.amount,
+
+cny:data.cny,
+
+time:new Date()
+.toLocaleString()
 
 });
 
 
 
+list=list.slice(0,10);
 
-//语音
 
 
-voiceBtn.addEventListener(
-"click",
-()=>{
+localStorage.history=
+JSON.stringify(list);
+
+
+
+loadHistory();
+
+
+}
+
+
+
+
+
+function loadHistory(){
+
+
+let box=
+document.getElementById("history");
+
+
+let list=
+JSON.parse(
+localStorage.history||"[]"
+);
+
+
+
+if(!list.length){
+
+box.innerHTML="暂无记录";
+
+return;
+
+}
+
+
+
+box.innerHTML=
+list.map(x=>
+
+
+`
+
+<div class="history-item">
+
+🌍 ${x.country}
+
+<br>
+
+${x.amount} ${x.currency}
+
+<br>
+
+≈ ¥${x.cny}
+
+<br>
+
+<small>${x.time}</small>
+
+</div>
+
+`
+
+).join("");
+
+
+
+}
+
+
+loadHistory();
+
+
+
+
+
+
+/*
+语音
+*/
+
+
+document
+.getElementById("voice")
+.onclick=()=>{
 
 
 if(!voiceText){
 
-alert("没有识别结果");
+alert("没有结果");
 
 return;
 
@@ -696,16 +1068,16 @@ voiceText
 );
 
 
+
 u.lang="zh-CN";
 
 
 speechSynthesis.speak(u);
 
 
-});
+};
 
 
-});
 
 </script>
 
