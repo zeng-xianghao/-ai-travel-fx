@@ -5,9 +5,12 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-<title>AI旅行汇率助手</title>
+
+<title>
+AI旅行汇率助手
+</title>
 
 
 <style>
@@ -24,11 +27,7 @@ margin:0;
 min-height:100vh;
 
 background:
-linear-gradient(
-135deg,
-#dbeafe,
-#f5f3ff
-);
+linear-gradient(135deg,#dbeafe,#ede9fe);
 
 font-family:
 -apple-system,
@@ -38,7 +37,8 @@ BlinkMacSystemFont,
 }
 
 
-.app{
+
+.container{
 
 max-width:430px;
 
@@ -50,46 +50,45 @@ padding:25px;
 
 
 
-.logo{
+.title{
 
 font-size:30px;
 
-font-weight:700;
+font-weight:800;
 
-margin-bottom:20px;
+margin-bottom:25px;
 
 }
 
 
 
-.glass{
+.box{
 
 background:
-rgba(255,255,255,.65);
+rgba(255,255,255,.75);
 
-backdrop-filter:
-blur(20px);
+backdrop-filter:blur(20px);
 
 border-radius:30px;
 
-padding:25px;
+padding:22px;
 
 margin-bottom:20px;
 
 box-shadow:
-0 20px 50px rgba(0,0,0,.1);
+0 15px 40px rgba(0,0,0,.12);
 
 }
 
 
 
-.upload{
+.photo{
 
-height:220px;
+height:260px;
 
 border-radius:25px;
 
-border:2px dashed #93c5fd;
+background:#f8fafc;
 
 display:flex;
 
@@ -99,13 +98,13 @@ justify-content:center;
 
 overflow:hidden;
 
-background:#fff;
+border:2px dashed #93c5fd;
 
 }
 
 
 
-.upload img{
+.photo img{
 
 width:100%;
 
@@ -125,24 +124,20 @@ display:none;
 
 
 
-.bigbtn{
+.btn{
 
 width:100%;
 
-height:55px;
-
-border:none;
-
-border-radius:30px;
+height:58px;
 
 margin-top:20px;
 
+border:0;
+
+border-radius:30px;
+
 background:
-linear-gradient(
-135deg,
-#2563eb,
-#4f46e5
-);
+linear-gradient(135deg,#2563eb,#4f46e5);
 
 color:white;
 
@@ -154,47 +149,11 @@ font-weight:bold;
 
 
 
-.card{
+.result{
 
-background:white;
+font-size:17px;
 
-border-radius:25px;
-
-padding:20px;
-
-margin-top:15px;
-
-}
-
-
-
-.flag{
-
-font-size:50px;
-
-}
-
-
-
-.price{
-
-font-size:30px;
-
-font-weight:bold;
-
-color:#2563eb;
-
-}
-
-
-
-.rmb{
-
-font-size:34px;
-
-font-weight:bold;
-
-color:#16a34a;
+line-height:1.8;
 
 }
 
@@ -210,17 +169,35 @@ color:#2563eb;
 
 
 
-.small{
+.money{
 
-color:#64748b;
+font-size:34px;
 
-font-size:14px;
+font-weight:800;
+
+color:#16a34a;
 
 }
 
 
 
+.flag{
+
+font-size:55px;
+
+}
+
+
+
+.error{
+
+color:#dc2626;
+
+}
+
+
 </style>
+
 
 </head>
 
@@ -228,10 +205,10 @@ font-size:14px;
 <body>
 
 
-<div class="app">
+<div class="container">
 
 
-<div class="logo">
+<div class="title">
 
 🌍 AI旅行汇率助手
 
@@ -239,13 +216,20 @@ font-size:14px;
 
 
 
-<div class="glass">
+<div class="box">
 
 
-<label class="upload">
+<label class="photo" for="file">
 
 
 <img id="preview">
+
+
+<span id="tip">
+
+📷 点击上传照片
+
+</span>
 
 
 </label>
@@ -265,121 +249,136 @@ capture="environment">
 
 <button
 
-class="bigbtn"
+id="scanBtn"
 
-onclick="runAI()">
+class="btn">
 
-📷 AI智能识别价格
+🤖 识别价格
 
 </button>
 
 
-
 </div>
 
 
 
 
-<div class="glass">
+<div class="box">
 
 
-<div id="result">
+<div id="result" class="result">
 
-<div class="small">
-
-等待拍摄商品、小票或菜单
+等待识别...
 
 </div>
-
-</div>
-
 
 
 <button
 
-class="bigbtn"
+id="voiceBtn"
 
-onclick="speak()">
+class="btn">
 
 🔊 播报结果
 
 </button>
 
 
-
 </div>
 
 
 
 </div>
-
-
 
 
 
 <script>
 
 
+document.addEventListener(
+"DOMContentLoaded",
+()=>{
+
+
 let imageBase64="";
 
-let speech="";
+let voiceText="";
 
 
 
-const fileInput=
+const file =
 document.getElementById("file");
 
-const preview=
+
+const preview =
 document.getElementById("preview");
 
-const result=
+
+const tip =
+document.getElementById("tip");
+
+
+const scanBtn =
+document.getElementById("scanBtn");
+
+
+const result =
 document.getElementById("result");
 
 
+const voiceBtn =
+document.getElementById("voiceBtn");
 
-/*
 
-上传图片
 
-*/
 
-fileInput.onclick=function(){
+//选择图片
+
+
+file.addEventListener(
+"change",
+function(){
+
+
+
+let imgFile=this.files[0];
+
+
+if(!imgFile){
+
+return;
 
 }
 
 
 
-fileInput.onchange=function(e){
-
-
-let file=e.target.files[0];
-
-
-if(!file)return;
+let reader=
+new FileReader();
 
 
 
-let reader=new FileReader();
+reader.onload=function(e){
 
 
-
-reader.onload=function(){
 
 let img=new Image();
 
 
+
 img.onload=function(){
+
 
 
 let canvas=
 document.createElement("canvas");
 
 
-let max=1000;
+
+let max=900;
 
 
-let scale=
-max/img.width;
+let scale=max/img.width;
+
 
 
 canvas.width=max;
@@ -395,11 +394,17 @@ canvas.getContext("2d");
 
 
 ctx.drawImage(
+
 img,
+
 0,
+
 0,
+
 canvas.width,
+
 canvas.height
+
 );
 
 
@@ -407,7 +412,7 @@ canvas.height
 imageBase64=
 canvas.toDataURL(
 "image/jpeg",
-0.7
+0.65
 );
 
 
@@ -415,29 +420,43 @@ canvas.toDataURL(
 preview.src=imageBase64;
 
 
-}
-
-
-img.src=reader.result;
-
-
-}
-
-
-reader.readAsDataURL(file);
+tip.style.display="none";
 
 
 }
 
 
 
+img.src=e.target.result;
 
-async function runAI(){
+
+
+}
+
+
+
+reader.readAsDataURL(imgFile);
+
+
+
+});
+
+
+
+
+
+//识别按钮
+
+
+scanBtn.addEventListener(
+"click",
+async function(){
+
 
 
 if(!imageBase64){
 
-alert("请先拍照");
+alert("请先上传照片");
 
 return;
 
@@ -463,18 +482,32 @@ result.innerHTML=
 
 
 
+scanBtn.innerHTML=
+"分析中...";
+
+
+
 try{
 
 
-let res=
+let controller=
+new AbortController();
 
+
+let timer=
+setTimeout(
+()=>controller.abort(),
+60000
+);
+
+
+
+let response=
 await fetch(
 "/api/vision",
 {
 
-
 method:"POST",
-
 
 headers:{
 
@@ -483,20 +516,28 @@ headers:{
 
 },
 
-
 body:JSON.stringify({
 
 image:imageBase64
 
-})
+}),
 
+signal:
+controller.signal
 
 });
 
 
+clearTimeout(timer);
+
+
 
 let data=
-await res.json();
+await response.json();
+
+
+
+console.log(data);
 
 
 
@@ -511,8 +552,8 @@ throw new Error(data.error);
 let flag="🌍";
 
 
+const countryFlag={
 
-const flags={
 
 China:"🇨🇳",
 
@@ -532,13 +573,16 @@ Germany:"🇩🇪"
 
 
 
-if(flags[data.country])
+if(countryFlag[data.country]){
 
-flag=flags[data.country];
+flag=
+countryFlag[data.country];
+
+}
 
 
 
-speech=
+voiceText=
 
 `${data.amount}${data.currency}，约${data.cny}人民币`;
 
@@ -548,8 +592,6 @@ result.innerHTML=
 
 `
 
-<div class="card">
-
 <div class="flag">
 
 ${flag}
@@ -557,45 +599,34 @@ ${flag}
 </div>
 
 
-<h3>
+国家：
 
-${data.country || "未知国家"}
+${data.country || "-"}
 
-</h3>
+<br>
 
-
-<div>
 
 货币：
 
-${data.currency}
+${data.currency || "-"}
 
-</div>
-
-
-<div class="price">
-
-${data.symbol || ""}${data.amount}
-
-</div>
+<br><br>
 
 
-<hr>
+原价：
+
+<h2>
+
+${data.symbol || ""}${data.amount || "-"}
+
+</h2>
 
 
-<div>
+人民币：
 
-人民币
+<div class="money">
 
-</div>
-
-
-<div class="rmb">
-
-¥${data.cny || "--"}
-
-</div>
-
+¥${data.cny || "-"}
 
 </div>
 
@@ -605,43 +636,63 @@ ${data.symbol || ""}${data.amount}
 
 }
 
-catch(e){
+
+catch(err){
 
 
 result.innerHTML=
 
 `
 
+<div class="error">
+
 ❌ 识别失败
 
 <br><br>
 
-${e.message}
+${err.message}
+
+</div>
 
 `;
 
-}
 
 
 }
 
 
 
-function speak(){
+scanBtn.innerHTML=
+"🤖 识别价格";
 
 
-if(!speech){
 
-alert("暂无结果");
+});
+
+
+
+
+//语音
+
+
+voiceBtn.addEventListener(
+"click",
+()=>{
+
+
+if(!voiceText){
+
+alert("没有识别结果");
 
 return;
 
 }
 
 
+
 let u=
 new SpeechSynthesisUtterance(
-speech
+voiceText
 );
 
 
@@ -651,8 +702,10 @@ u.lang="zh-CN";
 speechSynthesis.speak(u);
 
 
-}
+});
 
+
+});
 
 </script>
 
