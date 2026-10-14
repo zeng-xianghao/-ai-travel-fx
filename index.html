@@ -6,47 +6,240 @@
   <title>AuroraMap AI Sticker Studio</title>
   <style>
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    html, body { margin: 0; min-height: 100%; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", Arial, sans-serif; background: linear-gradient(135deg, #dbeafe, #ede9fe); color: #111827; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      background: linear-gradient(135deg, #dbeafe, #ede9fe);
+      color: #111827;
+    }
     body { padding-bottom: env(safe-area-inset-bottom); }
     .app { max-width: 430px; margin: 0 auto; padding: 16px 14px 96px; }
     .hero { margin: 8px 0 16px; }
-    .hero h1 { margin: 0; font-size: 30px; font-weight: 900; letter-spacing: .2px; }
+    .hero h1 { margin: 0; font-size: 30px; font-weight: 900; }
     .hero p { margin: 6px 0 0; color: #64748b; font-size: 13px; }
-    .card { background: rgba(255,255,255,.84); backdrop-filter: blur(18px); border: 1px solid rgba(255,255,255,.4); border-radius: 26px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.08); margin-bottom: 14px; }
+
+    .card {
+      background: rgba(255,255,255,.86);
+      backdrop-filter: blur(18px);
+      border: 1px solid rgba(255,255,255,.45);
+      border-radius: 26px;
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.08);
+      margin-bottom: 14px;
+    }
+
     h2 { margin: 0 0 12px; font-size: 18px; font-weight: 900; }
+
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .preview { height: 220px; border: 2px dashed #93c5fd; border-radius: 22px; background: #fff; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; text-align: center; color: #64748b; }
+
+    .preview {
+      height: 220px;
+      border: 2px dashed #93c5fd;
+      border-radius: 22px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+      text-align: center;
+      color: #64748b;
+    }
     .preview img { max-width: 100%; max-height: 100%; object-fit: contain; display: none; }
     .preview.show img { display: block; }
     .preview.show .placeholder { display: none; }
     .placeholder { padding: 16px; line-height: 1.8; font-size: 14px; }
+
     input[type=file] { display: none; }
-    button { width: 100%; height: 48px; border: 0; border-radius: 24px; background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; font-size: 15px; font-weight: 800; cursor: pointer; }
+
+    button {
+      width: 100%;
+      height: 48px;
+      border: 0;
+      border-radius: 24px;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: white;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+    }
     button.secondary { background: #111827; }
     button.ghost { background: #eef2ff; color: #3730a3; }
     button.warn { background: #ef4444; }
-    .status { background: #eff6ff; border-radius: 18px; padding: 12px 14px; color: #1d4ed8; font-size: 14px; line-height: 1.7; min-height: 72px; }
-    .board-wrap { background: linear-gradient(180deg, #fff7e8, #efd09b); border-radius: 28px; padding: 12px; box-shadow: inset 0 0 0 8px rgba(255,255,255,.18), inset 0 0 24px rgba(141,96,36,.16); }
-    .board { height: 400px; border-radius: 22px; position: relative; overflow: hidden; background: radial-gradient(circle at 16px 16px, rgba(255,255,255,.3) 0 2px, transparent 3px) 0 0/34px 34px, linear-gradient(180deg, #f6e2af, #deb572); touch-action: none; user-select: none; }
-    .board.empty { display: flex; align-items: center; justify-content: center; color: #7c5a2f; text-align: center; padding: 18px; line-height: 1.8; }
-    .sticker { position: absolute; width: 140px; transform-origin: center center; touch-action: none; user-select: none; filter: drop-shadow(0 12px 14px rgba(0,0,0,.18)); cursor: grab; }
-    .sticker.selected { outline: 2px dashed rgba(37,99,235,.7); outline-offset: 4px; }
-    .handle-delete { position: absolute; width: 32px; height: 32px; border-radius: 50%; background: #ef4444; color: #fff; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:16px; box-shadow: 0 6px 12px rgba(0,0,0,.18); z-index: 9999; }
-    .toolbar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
-    .mini { font-size: 12px; color: #64748b; line-height: 1.6; margin-top: 8px; }
-    .gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
-    .thumb { background: #fff; border-radius: 16px; border: 1px solid #e5e7eb; padding: 8px; text-align: center; }
-    .thumb img { width: 100%; height: 88px; object-fit: contain; display: block; }
-    .thumb .cap { margin-top: 6px; font-size: 11px; color: #64748b; line-height: 1.4; }
-    .pill { display: inline-flex; align-items: center; gap: 6px; background: #fff; border: 1px solid #e5e7eb; color: #111827; padding: 7px 10px; border-radius: 999px; font-size: 12px; font-weight: 800; margin: 8px 8px 0 0; }
-    @media (max-width: 380px) { .gallery { grid-template-columns: repeat(2, 1fr); } .row { grid-template-columns: 1fr; } .toolbar-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .status {
+      background: #eff6ff;
+      border-radius: 18px;
+      padding: 12px 14px;
+      color: #1d4ed8;
+      font-size: 14px;
+      line-height: 1.7;
+      min-height: 72px;
+      margin-top: 12px;
+    }
+
+    .pills { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      color: #111827;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .board-wrap {
+      background: linear-gradient(180deg, #fff7e8, #efd09b);
+      border-radius: 28px;
+      padding: 12px;
+      box-shadow:
+        inset 0 0 0 8px rgba(255,255,255,.18),
+        inset 0 0 24px rgba(141,96,36,.16);
+    }
+
+    .board {
+      height: 420px;
+      border-radius: 22px;
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 16px 16px, rgba(255,255,255,.3) 0 2px, transparent 3px) 0 0/34px 34px,
+        linear-gradient(180deg, #f6e2af, #deb572);
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .board.empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #7c5a2f;
+      text-align: center;
+      padding: 18px;
+      line-height: 1.8;
+    }
+
+    .sticker-wrap {
+      position: absolute;
+      transform-origin: center center;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      will-change: transform, left, top;
+    }
+
+    .sticker {
+      display: block;
+      width: 132px;
+      transform-origin: center center;
+      filter: drop-shadow(0 10px 12px rgba(0,0,0,.16));
+      user-select: none;
+      -webkit-user-drag: none;
+      pointer-events: none;
+    }
+
+    .sticker-wrap.selected .sticker {
+      outline: 2px dashed rgba(37,99,235,.75);
+      outline-offset: 4px;
+    }
+
+    .context-menu {
+      position: absolute;
+      left: 50%;
+      bottom: 14px;
+      transform: translateX(-50%);
+      display: none;
+      gap: 8px;
+      padding: 8px;
+      background: rgba(17,24,39,.88);
+      border-radius: 20px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 10px 24px rgba(0,0,0,.22);
+      z-index: 99999;
+      max-width: calc(100% - 16px);
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    .context-menu.show { display: flex; }
+
+    .menu-btn {
+      flex: 0 0 auto;
+      height: 38px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 0;
+      background: rgba(255,255,255,.14);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .menu-btn.delete { background: #ef4444; }
+
+    .mini {
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.6;
+      margin-top: 8px;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .thumb {
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #e5e7eb;
+      padding: 10px;
+      text-align: center;
+    }
+    .thumb img {
+      width: 100%;
+      height: 96px;
+      object-fit: contain;
+      display: block;
+    }
+    .thumb .cap {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #64748b;
+      line-height: 1.4;
+      min-height: 32px;
+    }
+    .thumb-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .small-btn {
+      height: 34px;
+      border-radius: 999px;
+      border: 0;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .small-btn.use { background: #eef2ff; color: #3730a3; }
+    .small-btn.del { background: #111827; color: white; }
+
+    @media (max-width: 380px) {
+      .row { grid-template-columns: 1fr; }
+      .gallery { grid-template-columns: 1fr 1fr; }
+    }
   </style>
 </head>
 <body>
 <div class="app">
   <div class="hero">
     <h1>🌌 AuroraMap</h1>
-    <p>AI Sticker Studio · 真正透明 PNG 抠图贴纸 · 手机 / 微信浏览器适配</p>
+    <p>AI Sticker Studio · 真正透明 PNG 抠图贴纸 · 微信 / 手机浏览器优化</p>
   </div>
 
   <div class="card">
@@ -60,29 +253,31 @@
       <button id="uploadBtn">上传图片</button>
       <button id="createBtn" class="secondary">✨ AI抠图生成贴纸</button>
     </div>
-    <div id="statusBox" class="status" style="margin-top:12px">等待图片</div>
-    <div id="subjectPills"></div>
+    <div id="statusBox" class="status">等待图片</div>
+    <div id="subjectPills" class="pills"></div>
     <div class="row" style="margin-top:12px">
-      <button id="saveBtn" class="ghost">💾 保存到沙盘</button>
+      <button id="addBoardBtn" class="ghost">➕ 加入沙盘</button>
       <button id="shareBtn" class="ghost">📤 分享沙盘</button>
     </div>
-    <div class="mini">长按贴纸后可任意拖动；双指支持缩放与旋转；白边厚度已提升到更粗的 3pt 效果。</div>
+    <div class="mini">优化项：AI识别加速、贴纸自动进入贴纸库、白边厚度提升到更粗的 8pt 不规则描边。</div>
   </div>
 
   <div class="card">
     <h2>🏖 贴纸沙盘</h2>
     <div class="board-wrap">
-      <div id="board" class="board empty">上传并保存贴纸后会显示在这里<br>支持：长按拖动 / 双指缩放 / 旋转 / 图层排序 / 删除</div>
+      <div id="board" class="board empty">
+        上传并生成贴纸后会显示在贴纸库<br>
+        点击“加入沙盘”或贴纸库中的“加入沙盘”按钮即可使用
+      </div>
+      <div id="contextMenu" class="context-menu">
+        <button class="menu-btn" data-action="front">置顶</button>
+        <button class="menu-btn" data-action="up">上移一层</button>
+        <button class="menu-btn" data-action="down">下移一层</button>
+        <button class="menu-btn" data-action="back">置底</button>
+        <button class="menu-btn delete" data-action="delete">删除</button>
+      </div>
     </div>
-    <div class="toolbar-grid">
-      <button id="frontBtn">置顶</button>
-      <button id="upBtn">上移一层</button>
-      <button id="downBtn">下移一层</button>
-      <button id="backBtn">置底</button>
-      <button id="deleteBtn" class="warn">删除选中</button>
-      <button id="clearBtn" class="secondary">清空</button>
-    </div>
-    <div class="mini">提示：单击贴纸可选中；长按约 350ms 后再拖动更稳定。选中后右上角会出现删除按钮。</div>
+    <div class="mini">操作方式：长按贴纸约 280ms 后可任意拖动；双指缩放和旋转；双击贴纸弹出菜单。</div>
   </div>
 
   <div class="card">
@@ -93,12 +288,25 @@
 
 <script>
 (function(){
-  const STORAGE_KEY = "auroramap_sticker_studio_v112";
-  const LONG_PRESS_MS = 350;
-  const BASE_WIDTH = 140;
+  const BOARD_KEY = "auroramap_board_v113";
+  const LIBRARY_KEY = "auroramap_library_v113";
+  const LONG_PRESS_MS = 280;
+  const BASE_WIDTH = 132;
   const $ = (id) => document.getElementById(id);
-  const state = { sourceImage:"", cutoutDataUrl:"", currentMeta:null, stickers:[], selectedId:null, bgRemovalLoaded:null };
-  try { state.stickers = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); } catch(e) { state.stickers = []; }
+
+  const state = {
+    sourceImage: "",
+    cutoutDataUrl: "",
+    currentMeta: null,
+    boardItems: [],
+    libraryItems: [],
+    selectedBoardId: null,
+    menuVisible: false,
+    bgRemovalLoaded: null
+  };
+
+  try { state.boardItems = JSON.parse(localStorage.getItem(BOARD_KEY) || "[]"); } catch(e) { state.boardItems = []; }
+  try { state.libraryItems = JSON.parse(localStorage.getItem(LIBRARY_KEY) || "[]"); } catch(e) { state.libraryItems = []; }
 
   const previewBox = $("previewBox");
   const previewImage = $("previewImage");
@@ -106,30 +314,48 @@
   const subjectPills = $("subjectPills");
   const board = $("board");
   const gallery = $("gallery");
+  const contextMenu = $("contextMenu");
 
   $("uploadBtn").addEventListener("click", () => $("fileInput").click());
   $("fileInput").addEventListener("change", handleFileChange);
   $("createBtn").addEventListener("click", createStickerFromSource);
-  $("saveBtn").addEventListener("click", saveCurrentStickerToBoard);
+  $("addBoardBtn").addEventListener("click", addCurrentToBoard);
   $("shareBtn").addEventListener("click", shareBoardImage);
-  $("frontBtn").addEventListener("click", () => reorderSelected("front"));
-  $("backBtn").addEventListener("click", () => reorderSelected("back"));
-  $("upBtn").addEventListener("click", () => reorderSelected("up"));
-  $("downBtn").addEventListener("click", () => reorderSelected("down"));
-  $("deleteBtn").addEventListener("click", deleteSelected);
-  $("clearBtn").addEventListener("click", clearAll);
 
+  contextMenu.addEventListener("click", (e) => {
+    const action = e.target && e.target.dataset && e.target.dataset.action;
+    if(!action) return;
+    if(action === "delete") deleteSelected();
+    else reorderSelected(action);
+  });
+
+  function persistBoard(){ localStorage.setItem(BOARD_KEY, JSON.stringify(state.boardItems)); }
+  function persistLibrary(){ localStorage.setItem(LIBRARY_KEY, JSON.stringify(state.libraryItems)); }
   function setStatus(text){ statusBox.innerHTML = text; }
-  function setPreview(src){ if(src){ previewBox.classList.add("show"); previewImage.src = src; } else { previewBox.classList.remove("show"); previewImage.removeAttribute("src"); } }
+
+  function setPreview(src){
+    if(src){
+      previewBox.classList.add("show");
+      previewImage.src = src;
+    }else{
+      previewBox.classList.remove("show");
+      previewImage.removeAttribute("src");
+    }
+  }
+
   function renderSubjectPills(meta){
     if(!meta){ subjectPills.innerHTML = ""; return; }
-    subjectPills.innerHTML = `<div class="pill">主体：${meta.subject || "未识别"}</div><div class="pill">类型：${meta.type || "object"}</div>`;
+    subjectPills.innerHTML = `
+      <div class="pill">主体：${meta.subject || "未识别"}</div>
+      <div class="pill">类型：${meta.type || "object"}</div>
+    `;
   }
 
   async function handleFileChange(e){
     const file = e.target.files && e.target.files[0];
     if(!file) return;
-    state.sourceImage = await fileToDataURL(file);
+    const data = await fileToDataURL(file);
+    state.sourceImage = await compressDataUrl(data, 1400, 0.86);
     state.cutoutDataUrl = "";
     state.currentMeta = null;
     renderSubjectPills(null);
@@ -138,28 +364,49 @@
   }
 
   async function createStickerFromSource(){
-    if(!state.sourceImage){ alert("请先上传图片"); return; }
+    if(!state.sourceImage){
+      alert("请先上传图片");
+      return;
+    }
     try{
       setStatus("1/3 正在快速识别主体类型...");
-      const meta = await identifySubject(state.sourceImage);
+      const fastInput = await compressDataUrl(state.sourceImage, 720, 0.72);
+      const meta = await identifySubject(fastInput);
       state.currentMeta = meta;
       renderSubjectPills(meta);
 
       setStatus("2/3 正在加载 AI 抠图引擎...");
       const removeBackground = await loadBackgroundRemoval();
 
-      setStatus("3/3 正在执行透明 PNG 抠图并生成粗白边贴纸...");
+      setStatus("3/3 正在生成透明 PNG 与 8pt 粗白边贴纸...");
       const cutoutBlob = await removeBackground(dataUrlToBlob(state.sourceImage), { progress: () => {} });
       const stickerBlob = await buildTrueStickerBlob(cutoutBlob);
       state.cutoutDataUrl = await blobToDataURL(stickerBlob);
 
       setPreview(state.cutoutDataUrl);
-      setStatus("✅ 贴纸生成完成，现在可以保存到沙盘。");
+      setStatus("✅ 贴纸生成完成，已自动加入贴纸库。");
+
+      autoAddToLibrary();
+      renderGallery();
     }catch(err){
       console.error(err);
       setStatus("❌ 生成失败：" + (err.message || err));
       alert("贴纸生成失败，请稍后重试。\n" + (err.message || err));
     }
+  }
+
+  function autoAddToLibrary(){
+    if(!state.cutoutDataUrl) return;
+    const item = {
+      id: Date.now(),
+      src: state.cutoutDataUrl,
+      subject: state.currentMeta?.subject || "未知主体",
+      type: state.currentMeta?.type || "object",
+      createdAt: new Date().toLocaleString()
+    };
+    state.libraryItems.unshift(item);
+    if(state.libraryItems.length > 60) state.libraryItems.length = 60;
+    persistLibrary();
   }
 
   async function identifySubject(imageDataUrl){
@@ -178,7 +425,10 @@
 
   async function loadBackgroundRemoval(){
     if(state.bgRemovalLoaded) return state.bgRemovalLoaded;
-    const urls = ["https://esm.sh/@imgly/background-removal?bundle","https://cdn.jsdelivr.net/npm/@imgly/background-removal/+esm"];
+    const urls = [
+      "https://esm.sh/@imgly/background-removal?bundle",
+      "https://cdn.jsdelivr.net/npm/@imgly/background-removal/+esm"
+    ];
     let lastErr = null;
     for(const url of urls){
       try{
@@ -195,263 +445,412 @@
   async function buildTrueStickerBlob(inputBlob){
     const bmp = await createImageBitmap(inputBlob);
     const w = bmp.width, h = bmp.height;
+
     const srcCanvas = document.createElement("canvas");
-    srcCanvas.width = w; srcCanvas.height = h;
+    srcCanvas.width = w;
+    srcCanvas.height = h;
     const sctx = srcCanvas.getContext("2d");
     sctx.drawImage(bmp, 0, 0);
 
-    const border = 42;
+    const border = 68; // ~8pt更粗白边
     const pad = border * 4;
 
     const maskCanvas = document.createElement("canvas");
-    maskCanvas.width = w; maskCanvas.height = h;
+    maskCanvas.width = w;
+    maskCanvas.height = h;
     const mctx = maskCanvas.getContext("2d");
     mctx.drawImage(srcCanvas, 0, 0);
-    const imgData = mctx.getImageData(0,0,w,h);
-    for(let i=0;i<imgData.data.length;i+=4){
+
+    const imgData = mctx.getImageData(0, 0, w, h);
+    for(let i=0; i<imgData.data.length; i+=4){
       const a = imgData.data[i+3];
-      imgData.data[i] = 255; imgData.data[i+1] = 255; imgData.data[i+2] = 255; imgData.data[i+3] = a;
+      imgData.data[i] = 255;
+      imgData.data[i+1] = 255;
+      imgData.data[i+2] = 255;
+      imgData.data[i+3] = a;
     }
-    mctx.putImageData(imgData,0,0);
+    mctx.putImageData(imgData, 0, 0);
 
     const outCanvas = document.createElement("canvas");
-    outCanvas.width = w + pad*2;
-    outCanvas.height = h + pad*2;
+    outCanvas.width = w + pad * 2;
+    outCanvas.height = h + pad * 2;
     const ctx = outCanvas.getContext("2d");
     const ox = pad, oy = pad;
 
-    for(let ang=0; ang<360; ang+=4){
+    for(let ang = 0; ang < 360; ang += 6){
       const rad = ang * Math.PI / 180;
-      for(let r=4; r<=border; r+=3){
+      for(let r = 4; r <= border; r += 6){
         const dx = Math.round(Math.cos(rad) * r);
         const dy = Math.round(Math.sin(rad) * r);
         ctx.drawImage(maskCanvas, ox + dx, oy + dy);
       }
     }
+
     ctx.save();
-    ctx.shadowColor = "rgba(0,0,0,.18)";
-    ctx.shadowBlur = 18;
+    ctx.shadowColor = "rgba(0,0,0,.16)";
+    ctx.shadowBlur = 16;
     ctx.shadowOffsetY = 8;
     ctx.drawImage(srcCanvas, ox, oy);
     ctx.restore();
+
     ctx.drawImage(srcCanvas, ox, oy);
 
     return await new Promise(resolve => outCanvas.toBlob(resolve, "image/png"));
   }
 
-  function saveCurrentStickerToBoard(){
-    if(!state.cutoutDataUrl){ alert("请先生成贴纸"); return; }
-    const id = Date.now();
-    state.stickers.push({ id, src: state.cutoutDataUrl, x: 90 + (state.stickers.length % 4) * 18, y: 90 + (state.stickers.length % 4) * 18, scale: 1, rotation: 0, z: state.stickers.length, meta: state.currentMeta || { subject:"未知主体", type:"object" } });
-    state.selectedId = id;
-    persist(); renderBoard(); renderGallery();
-    setStatus("✅ 已保存到沙盘与贴纸库。");
+  function addCurrentToBoard(){
+    if(!state.cutoutDataUrl){
+      alert("请先生成贴纸");
+      return;
+    }
+    const item = {
+      id: Date.now(),
+      src: state.cutoutDataUrl,
+      x: 100 + (state.boardItems.length % 5) * 18,
+      y: 90 + (state.boardItems.length % 5) * 18,
+      scale: 1,
+      rotation: 0,
+      z: state.boardItems.length,
+      subject: state.currentMeta?.subject || "未知主体",
+      type: state.currentMeta?.type || "object"
+    };
+    state.boardItems.push(item);
+    state.selectedBoardId = item.id;
+    persistBoard();
+    renderBoard();
   }
 
-  function persist(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state.stickers)); }
+  function addLibraryToBoard(id){
+    const lib = state.libraryItems.find(x => x.id === id);
+    if(!lib) return;
+    const item = {
+      id: Date.now(),
+      src: lib.src,
+      x: 100 + (state.boardItems.length % 5) * 18,
+      y: 90 + (state.boardItems.length % 5) * 18,
+      scale: 1,
+      rotation: 0,
+      z: state.boardItems.length,
+      subject: lib.subject,
+      type: lib.type
+    };
+    state.boardItems.push(item);
+    state.selectedBoardId = item.id;
+    persistBoard();
+    renderBoard();
+  }
+
+  function deleteLibraryItem(id){
+    state.libraryItems = state.libraryItems.filter(x => x.id !== id);
+    persistLibrary();
+    renderGallery();
+  }
+
+  function showMenu(){ contextMenu.classList.add("show"); state.menuVisible = true; }
+  function hideMenu(){ contextMenu.classList.remove("show"); state.menuVisible = false; }
 
   function renderBoard(){
     board.innerHTML = "";
-    if(!state.stickers.length){
+    board.appendChild(contextMenu);
+
+    if(!state.boardItems.length){
       board.classList.add("empty");
-      board.innerHTML = "上传并保存贴纸后会显示在这里<br>支持：长按拖动 / 双指缩放 / 旋转 / 图层排序 / 删除";
+      board.innerHTML = `上传并生成贴纸后会显示在贴纸库<br>点击“加入沙盘”或贴纸库中的“加入沙盘”按钮即可使用`;
+      board.appendChild(contextMenu);
+      hideMenu();
       return;
     }
+
     board.classList.remove("empty");
-    const sorted = [...state.stickers].sort((a,b) => (a.z||0)-(b.z||0));
+    const sorted = [...state.boardItems].sort((a,b) => (a.z||0) - (b.z||0));
 
     sorted.forEach(item => {
       const wrap = document.createElement("div");
-      wrap.style.position = "absolute";
-      wrap.style.left = item.x + "px";
-      wrap.style.top = item.y + "px";
-      wrap.style.transform = `translate(-50%,-50%) rotate(${item.rotation}deg) scale(${item.scale})`;
-      wrap.style.transformOrigin = "center center";
-      wrap.style.zIndex = item.z;
+      wrap.className = "sticker-wrap" + (item.id === state.selectedBoardId ? " selected" : "");
+      wrap.dataset.id = item.id;
+      applyItemTransform(wrap, item);
 
       const img = document.createElement("img");
       img.src = item.src;
-      img.className = "sticker" + (item.id === state.selectedId ? " selected" : "");
-      img.style.position = "relative";
-      img.style.left = "0";
-      img.style.top = "0";
-      img.style.transform = "none";
+      img.className = "sticker";
       wrap.appendChild(img);
 
-      if(item.id === state.selectedId){
-        const del = document.createElement("div");
-        del.className = "handle-delete";
-        del.textContent = "×";
-        del.style.left = "92px";
-        del.style.top = "-16px";
-        del.addEventListener("click", (e) => {
-          e.stopPropagation();
-          state.selectedId = item.id;
-          deleteSelected();
-        });
-        wrap.appendChild(del);
-      }
-
       attachGesture(wrap, item);
+
+      let lastTap = 0;
       wrap.addEventListener("click", (e) => {
         e.stopPropagation();
-        state.selectedId = item.id;
-        renderBoard();
+        state.selectedBoardId = item.id;
+
+        const now = Date.now();
+        if(now - lastTap < 300){
+          showMenu();
+        }else{
+          hideMenu();
+        }
+        lastTap = now;
+        updateSelectionUI();
       });
+
       board.appendChild(wrap);
     });
+
+    updateSelectionUI();
   }
 
   board.addEventListener("click", () => {
-    state.selectedId = null;
-    renderBoard();
+    state.selectedBoardId = null;
+    hideMenu();
+    updateSelectionUI();
   });
 
-  function attachGesture(el, item){
-    const pointers = new Map();
-    let start = null;
-    let longPressTimer = null;
-    let dragEnabled = false;
-
-    const clearLong = () => {
-      if(longPressTimer){ clearTimeout(longPressTimer); longPressTimer = null; }
-    };
-
-    const setElementTransform = () => {
-      el.style.left = item.x + "px";
-      el.style.top = item.y + "px";
-      el.style.transform = `translate(-50%,-50%) rotate(${item.rotation}deg) scale(${item.scale})`;
-      el.style.zIndex = item.z;
-    };
-
-    function onPointerDown(e){
-      e.preventDefault();
-      e.stopPropagation();
-      state.selectedId = item.id;
-      renderBoard();
-
-      el.setPointerCapture && el.setPointerCapture(e.pointerId);
-      pointers.set(e.pointerId, { x:e.clientX, y:e.clientY });
-
-      if(pointers.size === 1){
-        dragEnabled = false;
-        start = { mode: "press", x: item.x, y: item.y, px: e.clientX, py: e.clientY };
-        clearLong();
-        longPressTimer = setTimeout(() => {
-          if(pointers.size === 1) dragEnabled = true;
-        }, LONG_PRESS_MS);
-      }else if(pointers.size === 2){
-        clearLong();
-        dragEnabled = false;
-        const pts = [...pointers.values()];
-        start = { mode: "gesture", x: item.x, y: item.y, scale: item.scale, rotation: item.rotation, dist: distance(pts[0], pts[1]), angle: angleDeg(pts[0], pts[1]), center: centerPt(pts[0], pts[1]) };
-      }
-    }
-
-    function onPointerMove(e){
-      if(!pointers.has(e.pointerId)) return;
-      pointers.set(e.pointerId, { x:e.clientX, y:e.clientY });
-      if(!start) return;
-
-      if(pointers.size === 1){
-        const p = [...pointers.values()][0];
-        const moved = Math.hypot(p.x - start.px, p.y - start.py);
-        if(start.mode === "press" && moved > 8 && !dragEnabled){ clearLong(); return; }
-        if(dragEnabled){
-          item.x = start.x + (p.x - start.px);
-          item.y = start.y + (p.y - start.py);
-          setElementTransform();
-        }
-      }else if(pointers.size >= 2){
-        clearLong();
-        const pts = [...pointers.values()].slice(0,2);
-        const newDist = distance(pts[0], pts[1]);
-        const newAngle = angleDeg(pts[0], pts[1]);
-        item.scale = Math.max(0.35, Math.min(3.2, start.scale * (newDist / start.dist)));
-        item.rotation = start.rotation + (newAngle - start.angle);
-        const c = centerPt(pts[0], pts[1]);
-        item.x = start.x + (c.x - start.center.x);
-        item.y = start.y + (c.y - start.center.y);
-        setElementTransform();
-      }
-    }
-
-    function onPointerUp(e){
-      pointers.delete(e.pointerId);
-      clearLong();
-      if(pointers.size === 0){
-        start = null;
-        dragEnabled = false;
-        persist();
-        renderGallery();
-      }else if(pointers.size === 1){
-        const p = [...pointers.values()][0];
-        start = { mode:"press", x:item.x, y:item.y, px:p.x, py:p.y };
-        longPressTimer = setTimeout(() => { if(pointers.size === 1) dragEnabled = true; }, LONG_PRESS_MS);
-      }
-    }
-
-    el.onpointerdown = onPointerDown;
-    el.onpointermove = onPointerMove;
-    el.onpointerup = onPointerUp;
-    el.onpointercancel = onPointerUp;
-    el.onlostpointercapture = onPointerUp;
+  function updateSelectionUI(){
+    const wraps = board.querySelectorAll(".sticker-wrap");
+    wraps.forEach(w => {
+      const id = Number(w.dataset.id);
+      w.classList.toggle("selected", id === state.selectedBoardId);
+      const img = w.querySelector(".sticker");
+      if(img) img.classList.toggle("selected", id === state.selectedBoardId);
+    });
+    persistBoard();
   }
 
-  function distance(a,b){ return Math.hypot(a.x-b.x, a.y-b.y); }
-  function angleDeg(a,b){ return Math.atan2(b.y-a.y, b.x-a.x) * 180 / Math.PI; }
-  function centerPt(a,b){ return { x:(a.x+b.x)/2, y:(a.y+b.y)/2 }; }
+  function applyItemTransform(el, item){
+    el.style.left = item.x + "px";
+    el.style.top = item.y + "px";
+    el.style.transform = `translate(-50%,-50%) rotate(${item.rotation}deg) scale(${item.scale})`;
+    el.style.zIndex = item.z;
+  }
+
+  function attachGesture(el, item){
+    let pressTimer = null;
+    let dragging = false;
+    let moved = false;
+    let startX = 0, startY = 0, startItemX = 0, startItemY = 0;
+
+    let gesture = null;
+
+    function clearPress(){
+      if(pressTimer){
+        clearTimeout(pressTimer);
+        pressTimer = null;
+      }
+    }
+
+    el.addEventListener("touchstart", (e) => {
+      e.stopPropagation();
+      state.selectedBoardId = item.id;
+      updateSelectionUI();
+
+      if(e.touches.length === 1){
+        const t = e.touches[0];
+        moved = false;
+        dragging = false;
+        startX = t.clientX;
+        startY = t.clientY;
+        startItemX = item.x;
+        startItemY = item.y;
+        clearPress();
+        pressTimer = setTimeout(() => { dragging = true; }, LONG_PRESS_MS);
+      }else if(e.touches.length === 2){
+        clearPress();
+        dragging = false;
+        moved = true;
+        const t1 = e.touches[0], t2 = e.touches[1];
+        gesture = {
+          startScale: item.scale,
+          startRotation: item.rotation,
+          startX: item.x,
+          startY: item.y,
+          startDist: distance(t1, t2),
+          startAngle: angleDeg(t1, t2),
+          startCenter: centerPt(t1, t2)
+        };
+      }
+    }, { passive: true });
+
+    el.addEventListener("touchmove", (e) => {
+      if(e.touches.length === 1){
+        const t = e.touches[0];
+        const dx = t.clientX - startX;
+        const dy = t.clientY - startY;
+        if(Math.abs(dx) > 6 || Math.abs(dy) > 6) moved = true;
+
+        if(dragging){
+          e.preventDefault();
+          item.x = startItemX + dx;
+          item.y = startItemY + dy;
+          applyItemTransform(el, item);
+        }else if(moved){
+          clearPress();
+        }
+      }else if(e.touches.length >= 2 && gesture){
+        e.preventDefault();
+        clearPress();
+        const t1 = e.touches[0], t2 = e.touches[1];
+        const newDist = distance(t1, t2);
+        const newAngle = angleDeg(t1, t2);
+        const c = centerPt(t1, t2);
+
+        item.scale = Math.max(0.35, Math.min(3.2, gesture.startScale * (newDist / gesture.startDist)));
+        item.rotation = gesture.startRotation + (newAngle - gesture.startAngle);
+        item.x = gesture.startX + (c.x - gesture.startCenter.x);
+        item.y = gesture.startY + (c.y - gesture.startCenter.y);
+        applyItemTransform(el, item);
+      }
+    }, { passive: false });
+
+    el.addEventListener("touchend", () => {
+      clearPress();
+      dragging = false;
+      gesture = null;
+      persistBoard();
+    });
+
+    el.addEventListener("touchcancel", () => {
+      clearPress();
+      dragging = false;
+      gesture = null;
+      persistBoard();
+    });
+
+    // Mouse fallback
+    let mouseDown = false;
+    el.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      state.selectedBoardId = item.id;
+      updateSelectionUI();
+
+      mouseDown = true;
+      moved = false;
+      dragging = false;
+      startX = e.clientX;
+      startY = e.clientY;
+      startItemX = item.x;
+      startItemY = item.y;
+
+      clearPress();
+      pressTimer = setTimeout(() => { dragging = true; }, LONG_PRESS_MS);
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if(!mouseDown) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      if(Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+      if(dragging){
+        item.x = startItemX + dx;
+        item.y = startItemY + dy;
+        applyItemTransform(el, item);
+      }else if(moved){
+        clearPress();
+      }
+    });
+
+    window.addEventListener("mouseup", () => {
+      if(mouseDown){
+        mouseDown = false;
+        clearPress();
+        dragging = false;
+        persistBoard();
+      }
+    });
+  }
+
+  function distance(a,b){ return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY); }
+  function angleDeg(a,b){ return Math.atan2(b.clientY - a.clientY, b.clientX - a.clientX) * 180 / Math.PI; }
+  function centerPt(a,b){ return { x:(a.clientX + b.clientX)/2, y:(a.clientY + b.clientY)/2 }; }
 
   function reorderSelected(mode){
-    if(state.selectedId == null){ alert("请先选中一个贴纸"); return; }
-    const sorted = [...state.stickers].sort((a,b) => a.z - b.z);
-    const cur = sorted.findIndex(x => x.id === state.selectedId);
+    if(state.selectedBoardId == null){
+      alert("请先选中一个贴纸");
+      return;
+    }
+    const sorted = [...state.boardItems].sort((a,b) => a.z - b.z);
+    const cur = sorted.findIndex(x => x.id === state.selectedBoardId);
     if(cur < 0) return;
-    if(mode === "front" && cur < sorted.length - 1){ const item = sorted.splice(cur, 1)[0]; sorted.push(item); }
-    else if(mode === "back" && cur > 0){ const item = sorted.splice(cur, 1)[0]; sorted.unshift(item); }
-    else if(mode === "up" && cur < sorted.length - 1){ [sorted[cur], sorted[cur+1]] = [sorted[cur+1], sorted[cur]]; }
-    else if(mode === "down" && cur > 0){ [sorted[cur], sorted[cur-1]] = [sorted[cur-1], sorted[cur]]; }
-    sorted.forEach((item, i) => item.z = i);
-    state.stickers = sorted;
-    persist(); renderBoard(); renderGallery();
+
+    if(mode === "front" && cur < sorted.length - 1){
+      const item = sorted.splice(cur, 1)[0];
+      sorted.push(item);
+    }else if(mode === "back" && cur > 0){
+      const item = sorted.splice(cur, 1)[0];
+      sorted.unshift(item);
+    }else if(mode === "up" && cur < sorted.length - 1){
+      [sorted[cur], sorted[cur+1]] = [sorted[cur+1], sorted[cur]];
+    }else if(mode === "down" && cur > 0){
+      [sorted[cur], sorted[cur-1]] = [sorted[cur-1], sorted[cur]];
+    }
+
+    sorted.forEach((it, i) => it.z = i);
+    state.boardItems = sorted;
+    persistBoard();
+    renderBoard();
   }
 
   function deleteSelected(){
-    if(state.selectedId == null){ alert("请先选中一个贴纸"); return; }
-    state.stickers = state.stickers.filter(x => x.id !== state.selectedId);
-    state.selectedId = null;
-    persist(); renderBoard(); renderGallery();
-  }
-
-  function clearAll(){
-    if(!state.stickers.length) return;
-    if(confirm("确定清空全部贴纸吗？")){
-      state.stickers = [];
-      state.selectedId = null;
-      persist(); renderBoard(); renderGallery();
+    if(state.selectedBoardId == null){
+      alert("请先选中一个贴纸");
+      return;
     }
+    state.boardItems = state.boardItems.filter(x => x.id !== state.selectedBoardId);
+    state.selectedBoardId = null;
+    persistBoard();
+    hideMenu();
+    renderBoard();
   }
 
   function renderGallery(){
-    if(!state.stickers.length){ gallery.innerHTML = "暂无贴纸"; return; }
-    const sorted = [...state.stickers].sort((a,b) => (b.z||0)-(a.z||0));
-    gallery.innerHTML = sorted.map(item => `<div class="thumb"><img src="${item.src}" alt=""><div class="cap">${item.meta?.subject || "未知主体"}<br>缩放 ${item.scale.toFixed(2)} · 旋转 ${Math.round(item.rotation)}°</div></div>`).join("");
+    if(!state.libraryItems.length){
+      gallery.innerHTML = "暂无贴纸";
+      return;
+    }
+
+    gallery.innerHTML = state.libraryItems.map(item => `
+      <div class="thumb">
+        <img src="${item.src}" alt="">
+        <div class="cap">${item.subject || "未知主体"}<br>${item.createdAt || ""}</div>
+        <div class="thumb-actions">
+          <button class="small-btn use" data-use="${item.id}">加入沙盘</button>
+          <button class="small-btn del" data-del="${item.id}">删除</button>
+        </div>
+      </div>
+    `).join("");
+
+    gallery.querySelectorAll("[data-use]").forEach(btn => {
+      btn.addEventListener("click", () => addLibraryToBoard(Number(btn.dataset.use)));
+    });
+    gallery.querySelectorAll("[data-del]").forEach(btn => {
+      btn.addEventListener("click", () => deleteLibraryItem(Number(btn.dataset.del)));
+    });
   }
 
   async function shareBoardImage(){
-    if(!state.stickers.length){ alert("沙盘还没有贴纸"); return; }
+    if(!state.boardItems.length){
+      alert("沙盘还没有贴纸");
+      return;
+    }
     try{
       const blob = await exportBoardToBlob();
       const file = new File([blob], "auroramap-board.png", { type: "image/png" });
       if(navigator.canShare && navigator.canShare({ files:[file] })){
-        await navigator.share({ title: "AuroraMap 沙盘贴纸", text: "这是我制作的 AuroraMap 贴纸沙盘", files: [file] });
+        await navigator.share({
+          title: "AuroraMap 沙盘贴纸",
+          text: "这是我制作的 AuroraMap 贴纸沙盘",
+          files: [file]
+        });
       }else{
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
-        a.href = url; a.download = "auroramap-board.png"; a.click();
+        a.href = url;
+        a.download = "auroramap-board.png";
+        a.click();
         setTimeout(() => URL.revokeObjectURL(url), 1000);
       }
-    }catch(err){ alert("分享失败：" + (err.message || err)); }
+    }catch(err){
+      alert("分享失败：" + (err.message || err));
+    }
   }
 
   async function exportBoardToBlob(){
@@ -461,13 +860,23 @@
     canvas.height = rect.height * 2;
     const ctx = canvas.getContext("2d");
     ctx.scale(2,2);
+
     const grad = ctx.createLinearGradient(0,0,0,rect.height);
     grad.addColorStop(0, "#f6e2af");
     grad.addColorStop(1, "#deb572");
-    ctx.fillStyle = grad; ctx.fillRect(0,0,rect.width,rect.height);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,rect.width,rect.height);
+
     ctx.fillStyle = "rgba(255,255,255,.28)";
-    for(let y=16;y<rect.height;y+=34){ for(let x=16;x<rect.width;x+=34){ ctx.beginPath(); ctx.arc(x,y,2,0,Math.PI*2); ctx.fill(); } }
-    const sorted = [...state.stickers].sort((a,b) => (a.z||0)-(b.z||0));
+    for(let y=16;y<rect.height;y+=34){
+      for(let x=16;x<rect.width;x+=34){
+        ctx.beginPath();
+        ctx.arc(x,y,2,0,Math.PI*2);
+        ctx.fill();
+      }
+    }
+
+    const sorted = [...state.boardItems].sort((a,b) => (a.z||0)-(b.z||0));
     for(const item of sorted){
       const img = await loadImage(item.src);
       ctx.save();
@@ -479,7 +888,20 @@
       ctx.drawImage(img, -width/2, -height/2, width, height);
       ctx.restore();
     }
+
     return await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+  }
+
+  async function compressDataUrl(dataUrl, maxSide = 1200, quality = 0.82){
+    const img = await loadImage(dataUrl);
+    const ratio = Math.min(1, maxSide / Math.max(img.width, img.height));
+    const w = Math.max(1, Math.round(img.width * ratio));
+    const h = Math.max(1, Math.round(img.height * ratio));
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+    return canvas.toDataURL("image/jpeg", quality);
   }
 
   function fileToDataURL(file){
@@ -490,6 +912,7 @@
       reader.readAsDataURL(file);
     });
   }
+
   function blobToDataURL(blob){
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -498,6 +921,7 @@
       reader.readAsDataURL(blob);
     });
   }
+
   function dataUrlToBlob(dataUrl){
     const arr = dataUrl.split(",");
     const mime = arr[0].match(/:(.*?);/)[1];
@@ -507,6 +931,7 @@
     while(n--) u8arr[n] = bstr.charCodeAt(n);
     return new Blob([u8arr], { type: mime });
   }
+
   function loadImage(src){
     return new Promise((resolve, reject) => {
       const img = new Image();
