@@ -3,34 +3,33 @@ import OpenAI from "openai";
 
 const client = new OpenAI({
 
-  apiKey: process.env.OPENAI_API_KEY,
+apiKey:
+process.env.OPENAI_API_KEY,
 
-  baseURL:"https://ai.evanovation.com/v1"
+baseURL:
+"https://ai.evanovation.com/v1"
 
 });
 
 
-// 汇率接口
+
 async function getRate(currency){
 
 
 try{
 
 
-const url =
-`https://open.er-api.com/v6/latest/${currency}`;
+let r=
+await fetch(
+`https://open.er-api.com/v6/latest/${currency}`
+);
 
 
-const res =
-await fetch(url);
+let d=
+await r.json();
 
 
-const data =
-await res.json();
-
-
-
-return data.rates.CNY || null;
+return d.rates.CNY;
 
 
 }catch(e){
@@ -45,7 +44,6 @@ return null;
 
 
 export default async function handler(req,res){
-
 
 
 if(req.method!=="POST"){
@@ -67,20 +65,8 @@ const {image}=req.body;
 
 
 
-if(!image){
+const response =
 
-return res.status(400).json({
-
-error:"没有图片"
-
-});
-
-}
-
-
-
-
-const ai =
 await client.chat.completions.create({
 
 
@@ -89,33 +75,34 @@ model:"gpt-6-luna",
 
 
 
-max_tokens:300,
+temperature:0,
+
+
+
+max_tokens:200,
 
 
 
 messages:[
-
 
 {
 
 
 role:"system",
 
-
 content:
 `
-你是旅行汇率AI。
+你是旅行价格识别AI。
 
-识别图片价格。
+识别图片。
 
-只返回JSON:
+只输出JSON:
 
 {
 country:"",
 currency:"",
 symbol:"",
-amount:"",
-items:[]
+amount:""
 }
 
 不要解释。
@@ -124,24 +111,20 @@ items:[]
 },
 
 
-
 {
 
 
 role:"user",
 
-
 content:[
-
 
 {
 
 type:"text",
 
-text:"识别价格"
+text:"识别图片里的货币和金额"
 
 },
-
 
 {
 
@@ -155,7 +138,6 @@ url:image
 
 }
 
-
 ]
 
 }
@@ -164,35 +146,34 @@ url:image
 ]
 
 
-
 });
 
 
 
-let text =
-ai.choices[0].message.content;
+let content=
+response.choices[0].message.content;
 
 
-// 清理JSON
-text=text.replace(/```json/g,"")
+
+content=
+content
+.replace(/```json/g,"")
 .replace(/```/g,"")
 .trim();
 
 
 
-let result;
+let data;
 
 
 try{
 
-result=JSON.parse(text);
+data=JSON.parse(content);
 
 }catch{
 
-result={
-
-raw:text
-
+data={
+raw:content
 };
 
 }
@@ -200,24 +181,21 @@ raw:text
 
 
 
-// 自动人民币换算
-
 if(
-result.currency &&
-result.amount
+data.currency &&
+data.amount
 ){
 
 
-let rate =
-await getRate(result.currency);
-
+let rate=
+await getRate(data.currency);
 
 
 if(rate){
 
-result.cny =
+data.cny=
 (
-Number(result.amount)
+Number(data.amount)
 *
 rate
 ).toFixed(2);
@@ -229,19 +207,19 @@ rate
 
 
 
-return res.json(result);
+return res.json(data);
 
 
 
-}catch(error){
+}catch(e){
 
 
-console.log(error);
+console.log(e);
 
 
 return res.status(500).json({
 
-error:error.message
+error:e.message
 
 });
 
