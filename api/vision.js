@@ -3,185 +3,150 @@ import OpenAI from "openai";
 
 const client = new OpenAI({
 
-apiKey:
-process.env.OPENAI_API_KEY
+  apiKey: process.env.OPENAI_API_KEY,
+
+  baseURL: "https://ai.evanovation.com/v1"
 
 });
 
 
 
-export default async function handler(req,res){
+export default async function handler(req, res) {
+
+
+  if (req.method !== "POST") {
+
+    return res.status(405).json({
+
+      error: "只支持POST请求"
+
+    });
+
+  }
 
 
 
-if(req.method !== "POST"){
+  try {
 
-return res.status(405).json({
 
-error:"只支持POST"
-
-});
-
-}
+    const { image } = req.body;
 
 
 
-try{
+    if (!image) {
 
+      return res.status(400).json({
 
-const {image}=req.body;
+        error: "没有收到图片"
 
+      });
 
-
-if(!image){
-
-return res.status(400).json({
-
-error:"没有收到图片"
-
-});
-
-}
+    }
 
 
 
-
-// 防止超大图片
-
-if(image.length > 2000000){
-
-return res.status(413).json({
-
-error:"图片太大，请重新拍摄"
-
-});
-
-}
+    const response = await client.chat.completions.create({
 
 
+      model: "gpt-6-luna",
 
 
-const response =
+      messages: [
 
-await client.responses.create({
+        {
 
+          role: "system",
 
+          content:
+          `
+你是一个旅行汇率AI助手。
 
-model:"gpt-6-luna",
+分析用户上传图片。
 
-
-
-input:[
-
+必须返回JSON格式：
 
 {
-
-role:"user",
-
-
-
-content:[
-
-
-{
-
-type:"input_text",
-
-
-text:`
-
-你是旅行汇率AI助手。
-
-分析图片。
-
-只返回JSON:
-
-{
-
-"country":"",
-
-"currency":"",
-
-"symbol":"",
-
-"amount":"",
-
-"items":[]
-
+ "country":"",
+ "currency":"",
+ "symbol":"",
+ "amount":"",
+ "items":[]
 }
 
-
-要求:
+规则：
 
 1. 判断国家
 2. 判断货币
-3. 识别价格
-4. 识别菜单和小票商品
-5. 不要解释
+3. 提取价格
+4. 菜单列出商品
+5. 小票列出商品和总价
 
+不要输出解释。
 `
 
-},
+        },
+
+
+        {
+
+          role: "user",
+
+          content: [
+
+            {
+
+              type:"text",
+
+              text:"请识别图片中的价格信息"
+
+            },
+
+
+            {
+
+              type:"image_url",
+
+              image_url:{
+
+                url:image
+
+              }
+
+            }
+
+          ]
+
+        }
+
+      ]
+
+    });
 
 
 
-{
+    return res.status(200).json({
 
-type:"input_image",
+      result:
+      response.choices[0].message.content
 
-image_url:image
-
-}
-
-
-
-]
-
-
-}
+    });
 
 
 
-]
+  } catch(error) {
 
 
-
-});
-
+    console.error(error);
 
 
+    return res.status(500).json({
 
-return res.status(200).json({
+      error:error.message
 
-
-result:
-
-response.output_text
+    });
 
 
-});
-
-
-
-}
-
-catch(error){
-
-
-
-console.error(error);
-
-
-
-return res.status(500).json({
-
-error:error.message
-
-});
-
-
-}
-
+  }
 
 
 }
