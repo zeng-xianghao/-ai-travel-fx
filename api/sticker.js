@@ -1,33 +1,70 @@
 import OpenAI from "openai";
 
 const client = new OpenAI({
- apiKey: process.env.OPENAI_API_KEY,
- baseURL:"https://ai.evanovation.com/v1"
+  apiKey: process.env.OPENAI_API_KEY,
+  baseURL: "https://ai.evanovation.com/v1"
 });
 
-export default async function handler(req,res){
-try{
- const r=await client.chat.completions.create({
-  model:"gpt-6-luna",
-  temperature:0,
-  max_tokens:120,
-  messages:[
-   {
-    role:"system",
-    content:"识别图片主体。分类人物、建筑、商品、动物、食物、物品。只返回JSON {subject,type}"
-   },
-   {
-    role:"user",
-    content:[
-     {type:"text",text:"分析图片主体"},
-     {type:"image_url",image_url:{url:req.body.image,detail:"high"}}
-    ]
-   }
-  ]
- });
- let t=r.choices[0].message.content.replace(/```json|```/g,"").trim();
- res.json(JSON.parse(t));
-}catch(e){
- res.json({subject:"unknown",type:"object"});
+function fallbackTemplate(type) {
+  const t = String(type || "").toLowerCase();
+  if (t.includes("person") || t.includes("human")) return "person";
+  if (t.includes("building") || t.includes("architecture")) return "building";
+  if (t.includes("product") || t.includes("goods")) return "product";
+  return "object";
 }
+
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "POST only" });
+  }
+
+  try {
+    const { image } = req.body || {};
+    if (!image) {
+      return res.status(400).json({ error: "missing image" });
+    }
+
+    const response = await client.chat.completions.create({
+      model: "gpt-6-luna",
+      temperature: 0,
+      max_tokens: 180,
+      messages: [
+        {
+          role: "system",
+          content: `
+你是图片主体识别助手。
+请识别图片的主要主体，并分类为以下之一：
+person / building / product / object
+
+只输出 JSON：
+{
+  "subject": "",
+  "type": ""
+}
+不要解释，不要 Markdown。
+`
+        },
+        {
+          role: "user",
+          content: [
+            { type: "text", text: "识别图片主体，并进行分类。" },
+            { type: "image_url", image_url: { url: image, detail: "high" } }
+          ]
+        }
+      ]
+    });
+
+    let text = response.choices?.[0]?.message?.content || "";
+    text = text.replace(/```json/g, "").replace(/```/g, "").trim();
+
+    let data = { subject: "未知主体", type: "object" };
+    try {
+      data = JSON.parse(text);
+    } catch {}
+
+    data.type = fallbackTemplate(data.type);
+    return res.status(200).json(data);
+  } catch (e) {
+    return res.status(200).json({ subject: "未知主体", type: "object" });
+  }
 }
