@@ -14,36 +14,51 @@ baseURL:
 
 
 // 汇率缓存
-let rateCache={};
+
+const rateCache={};
 
 
+
+// 货币名称转换
 
 const currencyMap={
 
 
-"Indonesian rupiah":"IDR",
-"rupiah":"IDR",
-"印尼盾":"IDR",
-
-"US dollar":"USD",
-"dollar":"USD",
-"美元":"USD",
-
-"Japanese yen":"JPY",
-"yen":"JPY",
-"日元":"JPY",
-
-"Chinese yuan":"CNY",
 "人民币":"CNY",
+"yuan":"CNY",
+"Chinese yuan":"CNY",
 
-"Euro":"EUR",
+"美元":"USD",
+"dollar":"USD",
+"US dollar":"USD",
+
 "欧元":"EUR",
+"Euro":"EUR",
 
-"British pound":"GBP",
-"英镑":"GBP",
+"日元":"JPY",
+"Japanese yen":"JPY",
 
+"韩元":"KRW",
 "Korean won":"KRW",
-"韩元":"KRW"
+
+"印尼盾":"IDR",
+"rupiah":"IDR",
+"Indonesian rupiah":"IDR",
+
+"泰铢":"THB",
+"Thai baht":"THB",
+
+"新加坡元":"SGD",
+"Singapore dollar":"SGD",
+
+"港币":"HKD",
+"Hong Kong dollar":"HKD",
+
+"澳元":"AUD",
+"Australian dollar":"AUD",
+
+"英镑":"GBP",
+"British pound":"GBP"
 
 };
 
@@ -51,23 +66,26 @@ const currencyMap={
 
 
 
-async function normalizeCurrency(name){
+function normalizeCurrency(name){
 
 
-if(!name)return null;
+if(!name)
+return null;
 
 
-if(name.length===3){
 
+if(name.length===3)
 return name.toUpperCase();
 
-}
 
 
-for(let key in currencyMap){
+for(
+let key in currencyMap
+){
 
 if(
-name.toLowerCase()
+name
+.toLowerCase()
 .includes(
 key.toLowerCase()
 )
@@ -80,7 +98,9 @@ return currencyMap[key];
 }
 
 
-return name;
+
+return null;
+
 
 }
 
@@ -88,37 +108,41 @@ return name;
 
 
 
-async function getRate(code){
+async function exchange(currency){
 
 
-if(rateCache[code]){
 
-return rateCache[code];
+if(rateCache[currency]){
+
+return rateCache[currency];
 
 }
+
 
 
 try{
 
 
-let res=
+let r=
 await fetch(
-`https://open.er-api.com/v6/latest/${code}`
+
+`https://open.er-api.com/v6/latest/${currency}`
+
 );
 
 
 
-let data=
-await res.json();
+let d=
+await r.json();
 
 
 
 let rate=
-data.rates.CNY;
+d.rates.CNY;
 
 
 
-rateCache[code]=rate;
+rateCache[currency]=rate;
 
 
 
@@ -126,13 +150,19 @@ return rate;
 
 
 
-}catch(e){
+}catch{
+
 
 return null;
 
-}
 
 }
+
+
+}
+
+
+
 
 
 
@@ -143,11 +173,13 @@ export default async function handler(req,res){
 
 if(req.method!=="POST"){
 
+
 return res.status(405).json({
 
 error:"POST only"
 
 });
+
 
 }
 
@@ -156,36 +188,60 @@ error:"POST only"
 try{
 
 
-const {image}=req.body;
+const {
+
+image,
+
+mode="price",
+
+ocr
+
+}=req.body;
 
 
 
-const ai=
-await client.chat.completions.create({
 
 
 
-model:"gpt-6-luna",
+let prompt;
 
 
 
-max_tokens:200,
+if(mode==="receipt"){
 
 
+prompt=`
 
-temperature:0,
+你是旅行小票AI。
 
+识别图片里的所有商品。
 
-
-messages:[
+返回JSON:
 
 {
+country:"",
+currency:"",
+items:[
+{
+name:"",
+price:""
+}
+],
+total:""
+}
+
+currency返回英文名称。
+
+只输出JSON。
+
+`;
 
 
-role:"system",
+}else{
 
-content:
-`
+
+prompt=`
+
 你是旅行价格识别AI。
 
 识别图片。
@@ -199,15 +255,42 @@ symbol:"",
 amount:""
 }
 
-currency必须返回英文货币名称。
+currency返回英文名称。
 
-例如：
-Indonesian rupiah
-US dollar
-Japanese yen
+只输出JSON。
 
-只返回JSON。
-`
+`;
+
+}
+
+
+
+
+const response=
+
+await client.chat.completions.create({
+
+
+
+model:"gpt-6-luna",
+
+
+temperature:0,
+
+
+max_tokens:500,
+
+
+
+messages:[
+
+
+{
+
+role:"system",
+
+content:prompt
+
 
 },
 
@@ -219,13 +302,22 @@ role:"user",
 
 content:[
 
+
 {
 
 type:"text",
 
-text:"识别图片价格"
+text:
+`
+识别图片。
+
+OCR预扫描结果:
+${JSON.stringify(ocr||{})}
+
+`
 
 },
+
 
 {
 
@@ -246,19 +338,23 @@ url:image
 
 ]
 
-
 });
 
 
 
 
+
 let text=
-ai.choices[0].message.content;
+response
+.choices[0]
+.message
+.content;
 
 
 
 text=
-text.replace(/```json/g,"")
+text
+.replace(/```json/g,"")
 .replace(/```/g,"")
 .trim();
 
@@ -270,36 +366,40 @@ JSON.parse(text);
 
 
 
-//标准化货币
-
 
 let code=
-await normalizeCurrency(
+normalizeCurrency(
 data.currency
 );
 
 
 
-data.currencyCode=code;
+
+data.currencyCode=
+code;
 
 
 
-
-//人民币换算
+// 普通价格
 
 
 if(
-code &&
+mode==="price"
+&&
+code
+&&
 data.amount
 ){
 
 
+
 let rate=
-await getRate(code);
+await exchange(code);
 
 
 
 if(rate){
+
 
 data.cny=
 
@@ -313,7 +413,78 @@ rate
 
 }
 
+
+
 }
+
+
+
+
+
+
+// 小票模式
+
+
+if(
+mode==="receipt"
+&&
+code
+&&
+data.items
+){
+
+
+
+let total=0;
+
+
+
+data.items=
+data.items.map(item=>{
+
+
+let price=
+Number(item.price)||0;
+
+
+total+=price;
+
+
+
+return item;
+
+
+});
+
+
+
+data.total=total;
+
+
+
+let rate=
+await exchange(code);
+
+
+
+if(rate){
+
+
+data.cny=
+
+(
+total*
+rate
+
+).toFixed(2);
+
+
+}
+
+
+
+}
+
 
 
 
@@ -323,6 +494,10 @@ return res.json(data);
 
 
 }catch(e){
+
+
+
+console.log(e);
 
 
 
