@@ -5,11 +5,10 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
 <title>
-AI旅行汇率助手 V9
+AI Travel FX V10
 </title>
 
 
@@ -24,17 +23,10 @@ body{
 
 margin:0;
 
-min-height:100vh;
-
 background:
-linear-gradient(
-135deg,
-#dbeafe,
-#ede9fe
-);
+linear-gradient(135deg,#dbeafe,#ede9fe);
 
 font-family:
-
 -apple-system,
 BlinkMacSystemFont,
 "Microsoft YaHei";
@@ -43,11 +35,35 @@ BlinkMacSystemFont,
 
 
 
-.container{
+.app{
 
 max-width:430px;
 
 margin:auto;
+
+min-height:100vh;
+
+padding-bottom:90px;
+
+}
+
+
+
+.header{
+
+padding:25px;
+
+font-size:28px;
+
+font-weight:900;
+
+}
+
+
+
+.page{
+
+display:none;
 
 padding:20px;
 
@@ -55,13 +71,9 @@ padding:20px;
 
 
 
-.title{
+.page.active{
 
-font-size:30px;
-
-font-weight:900;
-
-margin:15px 0 25px;
+display:block;
 
 }
 
@@ -70,61 +82,36 @@ margin:15px 0 25px;
 .glass{
 
 background:
-rgba(255,255,255,.72);
+rgba(255,255,255,.75);
 
-backdrop-filter:
-blur(25px);
+backdrop-filter:blur(20px);
 
-border-radius:30px;
+border-radius:28px;
 
-padding:22px;
+padding:20px;
 
-margin-bottom:20px;
+margin-bottom:18px;
 
 box-shadow:
-0 20px 50px rgba(0,0,0,.12);
+0 15px 40px #0002;
 
 }
 
 
 
-.photo{
+.big{
 
-height:250px;
+font-size:32px;
 
-border-radius:25px;
-
-overflow:hidden;
-
-border:2px dashed #60a5fa;
-
-display:flex;
-
-align-items:center;
-
-justify-content:center;
-
-background:white;
+font-weight:900;
 
 }
 
 
 
-.photo img{
+.flag{
 
-width:100%;
-
-height:100%;
-
-object-fit:cover;
-
-}
-
-
-
-input[type=file]{
-
-display:none;
+font-size:55px;
 
 }
 
@@ -153,45 +140,95 @@ font-size:17px;
 
 font-weight:bold;
 
-margin-top:15px;
+}
+
+
+
+.photo{
+
+height:230px;
+
+border-radius:25px;
+
+border:2px dashed #60a5fa;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+overflow:hidden;
+
+background:white;
 
 }
 
 
 
-select,input{
+.photo img{
 
 width:100%;
 
-height:45px;
+height:100%;
 
-border-radius:15px;
-
-border:1px solid #ddd;
-
-padding:10px;
-
-margin-top:10px;
-
-font-size:16px;
+object-fit:cover;
 
 }
 
 
 
-.result{
+input[type=file]{
 
-line-height:1.8;
-
-font-size:16px;
+display:none;
 
 }
 
 
 
-.flag{
+.bottom{
 
-font-size:55px;
+position:fixed;
+
+bottom:0;
+
+left:0;
+
+right:0;
+
+height:75px;
+
+background:white;
+
+display:flex;
+
+justify-content:space-around;
+
+align-items:center;
+
+box-shadow:0 -5px 20px #0002;
+
+}
+
+
+
+.tab{
+
+font-size:12px;
+
+text-align:center;
+
+color:#64748b;
+
+}
+
+
+
+.tab span{
+
+display:block;
+
+font-size:25px;
 
 }
 
@@ -199,7 +236,7 @@ font-size:55px;
 
 .money{
 
-font-size:32px;
+font-size:34px;
 
 font-weight:900;
 
@@ -209,7 +246,7 @@ color:#16a34a;
 
 
 
-.history-item{
+.item{
 
 background:#f8fafc;
 
@@ -223,53 +260,122 @@ margin-top:10px;
 
 
 
-.loading{
-
-text-align:center;
-
-color:#2563eb;
-
-}
-
-
-
-.small{
-
-font-size:13px;
-
-color:#64748b;
-
-}
-
-
-
 </style>
 
-
 </head>
-
 
 
 <body>
 
 
-<div class="container">
+<div class="app">
 
 
+<div class="header">
 
-<div class="title">
-
-🌍 AI旅行汇率助手
+🌍 AI Travel FX
 
 </div>
 
+
+
+<!-- 首页 -->
+
+<div id="home" class="page active">
+
+
+<div class="glass">
+
+
+<div class="big">
+
+📍 当前地区
+
+</div>
+
+
+<div id="location">
+
+定位中...
+
+</div>
+
+
+</div>
 
 
 
 <div class="glass">
 
 
-<label class="photo" for="file">
+<h2>
+
+💱 默认货币
+
+</h2>
+
+
+<div id="currencyBox">
+
+自动检测
+
+</div>
+
+
+</div>
+
+
+
+<div class="glass">
+
+
+<h2>
+
+✨ 功能
+
+</h2>
+
+
+<p>
+📷 AI价格识别
+</p>
+
+
+<p>
+🧾 小票分析
+</p>
+
+
+<p>
+🗺旅行记录
+</p>
+
+
+<p>
+💎 Pro会员
+</p>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+<!-- 拍照 -->
+
+<div id="camera" class="page">
+
+
+<div class="glass">
+
+
+<label class="photo"
+for="file">
 
 
 <img id="preview">
@@ -277,7 +383,7 @@ color:#64748b;
 
 <div id="empty">
 
-📷 点击拍照
+📷 拍照识别
 
 </div>
 
@@ -300,120 +406,74 @@ capture="environment">
 
 <button id="scan">
 
-🤖 OCR + AI识别
+🤖 AI识别价格
 
 </button>
 
 
-<div class="small">
-
-OCR快速读取数字，AI确认国家和货币
-
 </div>
-
-
-</div>
-
-
 
 
 
 <div class="glass">
 
 
-<h3>
+<div id="result">
 
-💱 转换目标货币
+等待识别
 
-</h3>
-
-
-
-<select id="currency">
+</div>
 
 
-<option value="CNY">
-
-🇨🇳 人民币 CNY
-
-</option>
-
-
-<option value="USD">
-
-🇺🇸 美元 USD
-
-</option>
-
-
-<option value="EUR">
-
-🇪🇺 欧元 EUR
-
-</option>
-
-
-<option value="JPY">
-
-🇯🇵 日元 JPY
-
-</option>
-
-
-<option value="GBP">
-
-🇬🇧 英镑 GBP
-
-</option>
-
-
-<option value="KRW">
-
-🇰🇷 韩元 KRW
-
-</option>
-
-
-</select>
-
-
-
-<input
-
-id="custom"
-
-placeholder="输入其它货币，例如 CAD / AUD / THB">
-
-
-
-<button id="convert">
-
-🔄 转换货币
-
-</button>
-
+</div>
 
 
 </div>
 
 
 
+
+
+<!-- 小票 -->
+
+<div id="receipt" class="page">
 
 
 <div class="glass">
 
 
-<div id="result" class="result">
+<h2>
 
-等待识别...
+🧾 小票模式
 
-</div>
+</h2>
 
 
+<p>
 
-<button id="voice">
+上传小票，AI自动识别：
 
-🔊 播报结果
+</p>
+
+
+<p>
+
+商品名称
+
+<br>
+
+价格
+
+<br>
+
+总金额
+
+</p>
+
+
+<button>
+
+开始扫描
 
 </button>
 
@@ -421,17 +481,25 @@ placeholder="输入其它货币，例如 CAD / AUD / THB">
 </div>
 
 
+</div>
+
+
+
+
+
+<!-- 地图 -->
+
+<div id="map" class="page">
 
 
 <div class="glass">
 
 
-<h3>
+<h2>
 
-🕘 最近记录
+🗺旅行记录地图
 
-</h3>
-
+</h2>
 
 
 <div id="history">
@@ -444,182 +512,322 @@ placeholder="输入其它货币，例如 CAD / AUD / THB">
 </div>
 
 
-
 </div>
 
 
 
 
 
+<!-- 我的 -->
+
+<div id="user" class="page">
+
+
+<div class="glass">
+
+
+<h2>
+
+👤 我的
+
+</h2>
+
+
+<p>
+
+游客账户
+
+</p>
+
+
+<button>
+
+登录 / 注册
+
+</button>
+
+
+</div>
+
+
+
+<div class="glass">
+
+
+<h2>
+
+💎 Pro会员
+
+</h2>
+
+
+<p>
+
+无限AI识别
+
+</p>
+
+
+<p>
+
+小票模式
+
+</p>
+
+
+<p>
+
+旅行地图
+
+</p>
+
+
+<button>
+
+升级 Pro
+
+</button>
+
+
+</div>
+
+
+</div>
+
+
+
+
+<div class="bottom">
+
+
+<div class="tab"
+onclick="show('home')">
+
+<span>🏠</span>
+首页
+
+</div>
+
+
+<div class="tab"
+onclick="show('camera')">
+
+<span>📷</span>
+拍照
+
+</div>
+
+
+<div class="tab"
+onclick="show('receipt')">
+
+<span>🧾</span>
+小票
+
+</div>
+
+
+<div class="tab"
+onclick="show('map')">
+
+<span>🗺</span>
+旅行
+
+</div>
+
+
+<div class="tab"
+onclick="show('user')">
+
+<span>👤</span>
+我的
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
 
 <script>
 
 
-let imageBase64="";
-
-let currentData=null;
-
-let voiceText="";
+function show(id){
 
 
+document
+.querySelectorAll(".page")
+.forEach(
+x=>x.classList.remove("active")
+);
 
 
-
-const file=
-document.getElementById("file");
-
-
-const preview=
-document.getElementById("preview");
+document
+.getElementById(id)
+.classList.add("active");
 
 
-const empty=
-document.getElementById("empty");
-
-
-const result=
-document.getElementById("result");
+}
 
 
 
-/*
-上传图片 + 压缩
-*/
+
+// 180+国家旗帜生成
+
+function flag(code){
+
+return code
+.toUpperCase()
+.replace(
+/./g,
+c=>
+String.fromCodePoint(
+127397+c.charCodeAt()
+)
+);
+
+}
 
 
-file.addEventListener(
-"change",
-e=>{
 
 
-let f=e.target.files[0];
+
+// GPS定位
 
 
-if(!f)return;
+navigator.geolocation.getCurrentPosition(
 
+async pos=>{
+
+
+let lat=
+pos.coords.latitude;
+
+
+let lon=
+pos.coords.longitude;
+
+
+
+location.innerHTML=
+
+`
+纬度:
+${lat.toFixed(2)}
+<br>
+经度:
+${lon.toFixed(2)}
+`;
+
+
+// 简化国家判断
+
+if(
+lat>20 &&
+lat<50 &&
+lon>70 &&
+lon<140
+){
+
+currencyBox.innerHTML=
+
+"🇨🇳 中国 CNY";
+
+}
+
+
+else if(
+
+lon<-50
+
+){
+
+currencyBox.innerHTML=
+
+"🇺🇸 美国 USD";
+
+}
+
+
+else{
+
+
+currencyBox.innerHTML=
+
+"🌍 自动模式";
+
+}
+
+
+},
+
+
+()=>{
+
+
+location.innerHTML=
+
+"未授权定位";
+
+
+}
+
+);
+
+
+
+
+
+// 图片上传
+
+
+let img64="";
+
+
+file.onchange=e=>{
 
 
 let reader=
 new FileReader();
 
 
-
-reader.onload=e=>{
-
-
-let img=new Image();
+reader.onload=x=>{
 
 
+preview.src=x.target.result;
 
-img.onload=()=>{
+img64=x.target.result;
 
-
-let canvas=
-document.createElement("canvas");
-
-
-
-let max=900;
-
-
-
-let scale=max/img.width;
-
-
-
-canvas.width=max;
-
-canvas.height=
-img.height*scale;
-
-
-
-let ctx=
-canvas.getContext("2d");
-
-
-
-ctx.drawImage(
-img,
-0,
-0,
-canvas.width,
-canvas.height
-);
-
-
-
-imageBase64=
-canvas.toDataURL(
-"image/jpeg",
-0.65
-);
-
-
-
-preview.src=imageBase64;
 
 empty.style.display="none";
 
 
-}
+};
 
 
+reader.readAsDataURL(
+e.target.files[0]
+);
 
-img.src=e.target.result;
-
-
-}
-
-
-
-reader.readAsDataURL(f);
-
-
-});
-
-
-
-
-
-/*
-OCR模拟快速层
-
-提取图片已有数字
-后续可接Tesseract
-*/
-
-
-function quickOCR(){
-
-
-return {
-
-numbers:""
 
 };
 
 
-}
 
 
 
+// AI识别
 
 
-
-/*
-AI识别
-*/
+scan.onclick=async()=>{
 
 
-document
-.getElementById("scan")
-.onclick=async()=>{
+if(!img64){
 
-
-if(!imageBase64){
-
-alert("请先拍照");
+alert("请上传图片");
 
 return;
 
@@ -629,30 +837,14 @@ return;
 
 result.innerHTML=
 
-`
-
-<div class="loading">
-
-🔎 OCR扫描...
-
-<br>
-
-🤖 AI分析中...
-
-</div>
-
-`;
+"🤖 AI分析中...";
 
 
 
-try{
-
-
-let res=
+let r=
 await fetch(
 "/api/vision",
 {
-
 
 method:"POST",
 
@@ -663,106 +855,17 @@ headers:{
 
 },
 
-
 body:JSON.stringify({
 
-image:imageBase64,
-
-ocr:quickOCR()
+image:img64
 
 })
-
 
 });
 
 
-
 let data=
-await res.json();
-
-
-
-if(data.error){
-
-throw Error(data.error);
-
-}
-
-
-
-currentData=data;
-
-
-
-showResult(data);
-
-
-
-saveHistory(data);
-
-
-
-}
-
-
-catch(e){
-
-
-result.innerHTML=
-
-"❌ "+e.message;
-
-
-}
-
-
-
-};
-
-
-
-
-
-
-function showResult(data){
-
-
-
-let flag="🌍";
-
-
-
-let flags={
-
-Indonesia:"🇮🇩",
-
-China:"🇨🇳",
-
-Japan:"🇯🇵",
-
-USA:"🇺🇸",
-
-"United States":"🇺🇸",
-
-Korea:"🇰🇷",
-
-France:"🇫🇷"
-
-};
-
-
-
-if(flags[data.country])
-
-flag=flags[data.country];
-
-
-
-
-
-voiceText=
-
-`${data.amount}${data.currency}，约${data.cny}人民币`;
+await r.json();
 
 
 
@@ -772,7 +875,7 @@ result.innerHTML=
 
 <div class="flag">
 
-${flag}
+🌍
 
 </div>
 
@@ -781,159 +884,32 @@ ${flag}
 
 ${data.country}
 
-
 <br>
-
 
 货币：
 
 ${data.currency}
 
-
 <br>
-
 
 金额：
 
-<h2>
+${data.symbol||""}${data.amount}
 
-${data.symbol || ""}${data.amount}
 
-</h2>
-
+<br><br>
 
 
 人民币：
 
 <div class="money">
 
-¥${data.cny || "-"}
+¥${data.cny||"-"}
 
 </div>
 
 `;
 
-
-
-}
-
-
-
-
-
-/*
-自定义货币转换
-*/
-
-
-document
-.getElementById("convert")
-.onclick=async()=>{
-
-
-if(!currentData){
-
-alert("请先识别");
-
-return;
-
-}
-
-
-
-let target=
-document.getElementById("custom").value
-||
-document.getElementById("currency").value;
-
-
-
-let from=
-currentData.currencyCode;
-
-
-
-let amount=
-Number(currentData.amount);
-
-
-
-try{
-
-
-let r=
-await fetch(
-
-`https://open.er-api.com/v6/latest/${from}`
-
-);
-
-
-
-let d=
-await r.json();
-
-
-
-let rate=
-d.rates[target];
-
-
-
-let value=
-(
-amount*rate
-
-).toFixed(2);
-
-
-
-result.innerHTML+=
-
-`
-
-<hr>
-
-转换：
-
-${target}
-
-<br>
-
-<b>
-
-${value}
-
-${target}
-
-</b>
-
-`;
-
-
-
-}
-
-catch{
-
-alert("转换失败");
-
-}
-
-
-};
-
-
-
-
-
-
-/*
-历史记录
-*/
-
-
-function saveHistory(data){
 
 
 let list=
@@ -942,37 +918,19 @@ localStorage.history||"[]"
 );
 
 
-
-list.unshift({
-
-country:data.country,
-
-currency:data.currency,
-
-amount:data.amount,
-
-cny:data.cny,
-
-time:new Date()
-.toLocaleString()
-
-});
-
-
-
-list=list.slice(0,10);
-
+list.unshift(data);
 
 
 localStorage.history=
-JSON.stringify(list);
-
+JSON.stringify(
+list.slice(0,20)
+);
 
 
 loadHistory();
 
 
-}
+};
 
 
 
@@ -981,7 +939,7 @@ loadHistory();
 function loadHistory(){
 
 
-let box=
+let h=
 document.getElementById("history");
 
 
@@ -994,21 +952,16 @@ localStorage.history||"[]"
 
 if(!list.length){
 
-box.innerHTML="暂无记录";
-
 return;
 
 }
 
 
-
-box.innerHTML=
+h.innerHTML=
 list.map(x=>
 
-
 `
-
-<div class="history-item">
+<div class="item">
 
 🌍 ${x.country}
 
@@ -1018,11 +971,7 @@ ${x.amount} ${x.currency}
 
 <br>
 
-≈ ¥${x.cny}
-
-<br>
-
-<small>${x.time}</small>
+¥${x.cny||"-"}
 
 </div>
 
@@ -1030,52 +979,10 @@ ${x.amount} ${x.currency}
 
 ).join("");
 
-
-
 }
 
 
 loadHistory();
-
-
-
-
-
-
-/*
-语音
-*/
-
-
-document
-.getElementById("voice")
-.onclick=()=>{
-
-
-if(!voiceText){
-
-alert("没有结果");
-
-return;
-
-}
-
-
-
-let u=
-new SpeechSynthesisUtterance(
-voiceText
-);
-
-
-
-u.lang="zh-CN";
-
-
-speechSynthesis.speak(u);
-
-
-};
 
 
 
