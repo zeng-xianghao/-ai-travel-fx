@@ -1,32 +1,225 @@
-<!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AuroraMap V10.7.1</title>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AuroraMap V10.8</title>
 <style>
-body{margin:0;background:linear-gradient(135deg,#dbeafe,#ede9fe);font-family:Arial,"Microsoft YaHei"}
-.app{max-width:430px;margin:auto;padding:20px 20px 90px}
-.card{background:#ffffffcc;border-radius:24px;padding:18px;margin:15px 0}
-button{width:100%;height:50px;border:0;border-radius:25px;background:#2563eb;color:white;margin-top:10px;font-weight:bold}
-.page{display:none}.active{display:block}
-nav{position:fixed;bottom:0;left:0;right:0;height:70px;background:white;display:flex;justify-content:space-around;align-items:center}
-.preview{height:220px;border:2px dashed #60a5fa;border-radius:20px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Microsoft YaHei";background:linear-gradient(135deg,#dbeafe,#ede9fe)}
+.app{max-width:430px;margin:auto;padding:18px 18px 90px}
+.card{background:#ffffffcc;border-radius:26px;padding:18px;margin:15px 0;box-shadow:0 10px 30px #0002}
+button{width:100%;height:50px;border:0;border-radius:25px;background:#2563eb;color:white;font-weight:800;margin-top:10px}
+.page{display:none}.page.active{display:block}
+.preview{height:230px;border:2px dashed #60a5fa;border-radius:20px;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .preview img{max-width:100%;max-height:100%}
-input{display:none}.sandbox{height:260px;border-radius:25px;background:#efd39a;position:relative;overflow:hidden}.sticker{width:100px;position:absolute;filter:drop-shadow(0 8px 8px #777)}
-.money{font-size:30px;color:#16a34a;font-weight:bold}
-</style></head>
-<body><div class="app">
+input{display:none}
+nav{position:fixed;bottom:0;left:0;right:0;height:70px;background:#fff;display:flex;justify-content:space-around;align-items:center}
+.sandbox{height:300px;border-radius:25px;background:
+radial-gradient(circle,#fff4 2px,transparent 3px) 0 0/30px 30px,
+linear-gradient(#f3d49b,#ddb36d);position:relative;overflow:hidden}
+.sticker{position:absolute;width:110px;cursor:move;filter:drop-shadow(0 8px 8px #555)}
+</style>
+</head>
+<body>
+<div class="app">
 <h1>🌌 AuroraMap</h1>
-<div id="home" class="page active card"><h3>首页</h3><button onclick="go('camera')">📷拍照</button><button onclick="go('travel')">🗺旅行记录</button><button onclick="go('sticker')">🏷贴纸区</button></div>
-<div id="camera" class="page card"><h3>AI识别</h3><label class="preview"><img id="camImg"><input id="camFile" type="file" accept="image/*">上传图片</label><button id="scan">识别</button><div id="result"></div></div>
-<div id="travel" class="page card"><h3>旅行记录</h3><div id="history">暂无</div></div>
-<div id="sticker" class="page card"><h3>贴纸沙盘</h3><label class="preview"><img id="stickerPreview"><input id="stickerFile" type="file" accept="image/*">上传图片</label><button id="make">生成白边贴纸</button><button id="save">保存到沙盘</button><div id="board" class="sandbox"></div></div>
+
+<div id="home" class="page active card">
+<h2>首页</h2>
+<button onclick="showPage('sticker')">🏷 贴纸区</button>
+<button onclick="showPage('camera')">📷 识别</button>
+<button onclick="showPage('travel')">🗺旅行记录</button>
 </div>
-<nav><div onclick="go('home')">🏠</div><div onclick="go('camera')">📷</div><div onclick="go('travel')">🗺</div><div onclick="go('sticker')">🏷</div></nav>
+
+<div id="camera" class="page card">
+<h2>📷识别</h2>
+<input id="cameraFile" type="file" accept="image/*">
+<button onclick="cameraFile.click()">选择图片</button>
+<button id="scan">AI识别</button>
+<div id="result"></div>
+</div>
+
+<div id="travel" class="page card">
+<h2>🗺旅行记录</h2>
+<div id="records">暂无记录</div>
+</div>
+
+<div id="sticker" class="page card">
+<h2>🏷贴纸区</h2>
+<input id="stickerFile" type="file" accept="image/*">
+<button onclick="stickerFile.click()">上传图片</button>
+<div class="preview"><img id="stickerPreview"></div>
+<button id="makeSticker">生成厚白边贴纸</button>
+<button id="saveSticker">保存到沙盘</button>
+<button id="clearBoard">清空沙盘</button>
+
+<h3>🏖贴纸沙盘</h3>
+<div id="board" class="sandbox"></div>
+
+<h3>贴纸库</h3>
+<div id="library"></div>
+</div>
+
+</div>
+
+<nav>
+<div onclick="showPage('home')">🏠</div>
+<div onclick="showPage('camera')">📷</div>
+<div onclick="showPage('travel')">🗺</div>
+<div onclick="showPage('sticker')">🏷</div>
+</nav>
+
 <script>
-function go(x){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(x).classList.add('active')}
-let img64="";
-camFile.onchange=e=>{let r=new FileReader();r.onload=x=>{img64=x.target.result;camImg.src=img64};r.readAsDataURL(e.target.files[0])}
-scan.onclick=async()=>{let r=await fetch('/api/vision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:img64,mode:'deep'})});let d=await r.json();result.innerHTML=d.country+' '+d.currency+'<h2>'+d.amount+'</h2><div class="money">¥'+(d.cny||'-')+'</div>'}
-let sticker="";
-stickerFile.onchange=e=>{let r=new FileReader();r.onload=x=>{sticker=x.target.result;stickerPreview.src=sticker};r.readAsDataURL(e.target.files[0])}
-make.onclick=()=>{if(sticker)stickerPreview.style.border='30px solid white'}
-save.onclick=()=>{if(!sticker)return;let i=document.createElement('img');i.src=sticker;i.className='sticker';i.style.left=Math.random()*150+'px';i.style.top=Math.random()*120+'px';board.appendChild(i)}
-</script></body></html>
+function showPage(id){
+document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+}
+
+let stickerData="";
+let library=JSON.parse(localStorage.getItem("aurora_stickers")||"[]");
+
+stickerFile.onchange=e=>{
+let r=new FileReader();
+r.onload=x=>{
+stickerData=x.target.result;
+stickerPreview.src=stickerData;
+};
+r.readAsDataURL(e.target.files[0]);
+};
+
+
+// 白边厚度扩大2倍
+makeSticker.onclick=()=>{
+if(!stickerData)return alert("请上传图片");
+
+let img=new Image();
+img.onload=()=>{
+
+let c=document.createElement("canvas");
+let border=80;
+
+c.width=img.width+border*2;
+c.height=img.height+border*2;
+
+let ctx=c.getContext("2d");
+
+// 模拟不规则厚白边
+ctx.shadowColor="white";
+ctx.shadowBlur=80;
+
+ctx.drawImage(
+img,
+border,
+border
+);
+
+ctx.shadowBlur=0;
+
+stickerData=c.toDataURL("image/png");
+stickerPreview.src=stickerData;
+
+};
+img.src=stickerData;
+};
+
+
+saveSticker.onclick=()=>{
+if(!stickerData)return;
+
+library.push({
+img:stickerData,
+x:30,
+y:30,
+time:new Date().toLocaleString()
+});
+
+localStorage.setItem(
+"aurora_stickers",
+JSON.stringify(library)
+);
+
+renderBoard();
+};
+
+
+function renderBoard(){
+
+board.innerHTML="";
+
+library.forEach((item,index)=>{
+
+let img=document.createElement("img");
+
+img.src=item.img;
+
+img.className="sticker";
+
+img.style.left=item.x+"px";
+img.style.top=item.y+"px";
+
+
+let startX,startY;
+
+img.onpointerdown=e=>{
+
+startX=e.clientX-item.x;
+startY=e.clientY-item.y;
+
+img.setPointerCapture(e.pointerId);
+
+img.onpointermove=e=>{
+
+item.x=e.clientX-startX;
+item.y=e.clientY-startY;
+
+img.style.left=item.x+"px";
+img.style.top=item.y+"px";
+
+};
+
+img.onpointerup=()=>{
+
+localStorage.setItem(
+"aurora_stickers",
+JSON.stringify(library)
+);
+
+};
+
+};
+
+
+board.appendChild(img);
+
+});
+
+
+library.forEach((x,i)=>{
+
+let p=document.createElement("p");
+p.innerHTML=`贴纸 ${i+1} <button onclick="deleteSticker(${i})">删除</button>`;
+libraryDiv.appendChild(p);
+
+});
+
+}
+
+function deleteSticker(i){
+library.splice(i,1);
+localStorage.setItem("aurora_stickers",JSON.stringify(library));
+renderBoard();
+}
+
+clearBoard.onclick=()=>{
+library=[];
+localStorage.removeItem("aurora_stickers");
+renderBoard();
+};
+
+let libraryDiv=document.getElementById("library");
+
+renderBoard();
+
+</script>
+</body>
+</html>
