@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
-  <title>AuroraMap AI Sticker Studio</title>
+  <title>AuroraMap AI Sticker Studio V11.5</title>
   <style>
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body {
@@ -12,12 +12,13 @@
       font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
       background: linear-gradient(135deg, #dbeafe, #ede9fe);
       color: #111827;
+      overscroll-behavior: none;
     }
     body { padding-bottom: env(safe-area-inset-bottom); }
     .app { max-width: 430px; margin: 0 auto; padding: 16px 14px 96px; }
     .hero { margin: 8px 0 16px; }
     .hero h1 { margin: 0; font-size: 30px; font-weight: 900; }
-    .hero p { margin: 6px 0 0; color: #64748b; font-size: 13px; }
+    .hero p { margin: 6px 0 0; color: #64748b; font-size: 13px; line-height: 1.6; }
 
     .card {
       background: rgba(255,255,255,.88);
@@ -29,8 +30,18 @@
       margin-bottom: 14px;
     }
 
+    .board-card {
+      background: transparent;
+      backdrop-filter: none;
+      border: 0;
+      box-shadow: none;
+      padding: 0;
+    }
+
     h2 { margin: 0 0 12px; font-size: 18px; font-weight: 900; }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
     .preview {
       height: 220px;
       border: 2px dashed #93c5fd;
@@ -88,25 +99,36 @@
       font-weight: 800;
     }
 
+    .board-title {
+      padding: 0 2px 10px;
+      font-size: 18px;
+      font-weight: 900;
+    }
+
     .board-wrap {
       position: relative;
       background: linear-gradient(180deg, #fff7e8, #efd09b);
-      border-radius: 28px;
-      padding: 12px;
-      box-shadow: inset 0 0 0 8px rgba(255,255,255,.18), inset 0 0 24px rgba(141,96,36,.16);
+      border-radius: 30px;
+      padding: 10px;
+      box-shadow:
+        inset 0 0 0 10px rgba(255,255,255,.16),
+        inset 0 0 28px rgba(141,96,36,.18),
+        0 12px 32px rgba(91,53,10,.14);
     }
+
     .board {
-      height: 420px;
-      border-radius: 22px;
+      height: 500px;
+      border-radius: 24px;
       position: relative;
       overflow: hidden;
       background:
-        radial-gradient(circle at 16px 16px, rgba(255,255,255,.3) 0 2px, transparent 3px) 0 0/34px 34px,
+        radial-gradient(circle at 16px 16px, rgba(255,255,255,.28) 0 2px, transparent 3px) 0 0/34px 34px,
         linear-gradient(180deg, #f6e2af, #deb572);
       touch-action: none;
       user-select: none;
       -webkit-user-select: none;
     }
+
     .board.empty {
       display: flex;
       align-items: center;
@@ -115,6 +137,7 @@
       text-align: center;
       padding: 18px;
       line-height: 1.8;
+      font-size: 15px;
     }
 
     .sticker-wrap {
@@ -125,15 +148,17 @@
       -webkit-user-select: none;
       will-change: transform, left, top;
     }
+
     .sticker {
       display: block;
-      width: 128px;
+      width: 132px;
       transform-origin: center center;
-      filter: drop-shadow(0 10px 12px rgba(0,0,0,.15));
+      filter: drop-shadow(0 10px 12px rgba(0,0,0,.14));
       user-select: none;
       -webkit-user-drag: none;
       pointer-events: none;
     }
+
     .sticker-wrap.selected .sticker {
       outline: 2px dashed rgba(37,99,235,.72);
       outline-offset: 4px;
@@ -152,13 +177,16 @@
       backdrop-filter: blur(14px);
       box-shadow: 0 10px 24px rgba(0,0,0,.22);
       z-index: 99999;
-      max-width: calc(100% - 16px);
+      max-width: calc(100% - 20px);
       overflow-x: auto;
       white-space: nowrap;
     }
     .context-menu.show { display: flex; }
+
     .menu-btn {
       flex: 0 0 auto;
+      min-width: 0;
+      width: auto;
       height: 38px;
       padding: 0 14px;
       border-radius: 999px;
@@ -167,10 +195,9 @@
       color: #fff;
       font-size: 13px;
       font-weight: 800;
-      width: auto;
-      min-width: 0;
     }
     .menu-btn.delete { background: #ef4444; }
+    .menu-btn.clear { background: #b45309; }
 
     .mini {
       font-size: 12px;
@@ -197,12 +224,13 @@
       height: 96px;
       object-fit: contain;
       display: block;
+      background: transparent;
     }
     .thumb .cap {
       margin-top: 6px;
       font-size: 11px;
       color: #64748b;
-      line-height: 1.4;
+      line-height: 1.45;
       min-height: 32px;
       word-break: break-word;
     }
@@ -224,8 +252,9 @@
     .small-btn.del { background: #111827; color: #fff; }
 
     @media (max-width: 380px) {
-      .row { grid-template-columns: 1fr; }
+      .row, .row3 { grid-template-columns: 1fr; }
       .gallery { grid-template-columns: 1fr 1fr; }
+      .board { height: 460px; }
     }
   </style>
 </head>
@@ -233,7 +262,7 @@
 <div class="app">
   <div class="hero">
     <h1>🌌 AuroraMap</h1>
-    <p>AI Sticker Studio · 真正透明 PNG 抠图贴纸 · 手机 / 微信浏览器流畅优化版</p>
+    <p>AI Sticker Studio V11.5 · 手机端本地上传 + 拍照上传 · 双击贴纸弹出操作菜单</p>
   </div>
 
   <div class="card">
@@ -242,22 +271,33 @@
       <img id="previewImage" alt="">
       <div class="placeholder">上传人物 / 建筑 / 商品 / 物品图片<br>自动识别主体并生成透明 PNG 贴纸</div>
     </div>
-    <input id="fileInput" type="file" accept="image/*" capture="environment">
+
+    <input id="fileLocal" type="file" accept="image/*">
+    <input id="fileCamera" type="file" accept="image/*" capture="environment">
+
     <div class="row" style="margin-top:12px">
-      <button id="uploadBtn">上传图片</button>
-      <button id="createBtn" class="secondary">✨ AI抠图生成贴纸</button>
+      <button id="localBtn">本地上传</button>
+      <button id="cameraBtn">拍照上传</button>
     </div>
+
+    <div class="row" style="margin-top:10px">
+      <button id="createBtn" class="secondary">✨ AI抠图生成贴纸</button>
+      <button id="addBoardBtn" class="ghost">➕ 加入沙盘</button>
+    </div>
+
     <div id="statusBox" class="status">等待图片</div>
     <div id="subjectPills" class="pills"></div>
+
     <div class="row" style="margin-top:12px">
-      <button id="addBoardBtn" class="ghost">➕ 加入沙盘</button>
       <button id="shareBtn" class="ghost">📤 分享沙盘</button>
+      <button id="clearCurrentBtn" class="ghost">🧹 清空当前预览</button>
     </div>
-    <div class="mini">优化：长按任意拖动、白边 6pt、更流畅的沙盘渲染、生成后自动加入贴纸库、双击贴纸显示操作菜单。</div>
+
+    <div class="mini">修复重点：手机长按贴纸可任意拖动、沙盘无白底完整显示、每次生成都会自动上传到贴纸库、双击贴纸后弹出菜单栏。</div>
   </div>
 
-  <div class="card">
-    <h2>🏖 贴纸沙盘</h2>
+  <div class="card board-card">
+    <div class="board-title">🏖 贴纸沙盘</div>
     <div class="board-wrap">
       <div id="board" class="board empty">上传并生成贴纸后会自动进入贴纸库<br>点击“加入沙盘”或贴纸库中的“加入沙盘”即可使用</div>
       <div id="contextMenu" class="context-menu">
@@ -265,10 +305,11 @@
         <button class="menu-btn" data-action="up">上移一层</button>
         <button class="menu-btn" data-action="down">下移一层</button>
         <button class="menu-btn" data-action="back">置底</button>
-        <button class="menu-btn delete" data-action="delete">删除</button>
+        <button class="menu-btn delete" data-action="delete">删除选中</button>
+        <button class="menu-btn clear" data-action="clear">清空</button>
       </div>
     </div>
-    <div class="mini">操作：长按贴纸约 220ms 即可任意拖动；双指缩放与旋转；双击贴纸弹出菜单。</div>
+    <div class="mini">操作方式：长按贴纸约 220ms 可拖动；双指缩放 / 旋转；双击贴纸后显示操作菜单。</div>
   </div>
 
   <div class="card">
@@ -279,48 +320,54 @@
 
 <script>
 (function(){
-  const BOARD_KEY = "auroramap_board_v114";
-  const LIBRARY_KEY = "auroramap_library_v114";
+  const BOARD_KEY = "auroramap_board_v115";
+  const LIBRARY_KEY = "auroramap_library_v115";
   const LONG_PRESS_MS = 220;
-  const BASE_WIDTH = 128;
-  const $ = (id) => document.getElementById(id);
+  const BASE_WIDTH = 132;
+  const $ = function(id){ return document.getElementById(id); };
 
-  const state = {
+  var state = {
     sourceImage: "",
     cutoutDataUrl: "",
     currentMeta: null,
     boardItems: [],
     libraryItems: [],
     selectedBoardId: null,
-    bgRemovalLoaded: null
+    bgRemovalLoaded: null,
+    draggingNow: false
   };
 
   try { state.boardItems = JSON.parse(localStorage.getItem(BOARD_KEY) || "[]"); } catch(e) { state.boardItems = []; }
   try { state.libraryItems = JSON.parse(localStorage.getItem(LIBRARY_KEY) || "[]"); } catch(e) { state.libraryItems = []; }
 
-  const previewBox = $("previewBox");
-  const previewImage = $("previewImage");
-  const statusBox = $("statusBox");
-  const subjectPills = $("subjectPills");
-  const board = $("board");
-  const gallery = $("gallery");
-  const contextMenu = $("contextMenu");
+  var previewBox = $("previewBox");
+  var previewImage = $("previewImage");
+  var statusBox = $("statusBox");
+  var subjectPills = $("subjectPills");
+  var board = $("board");
+  var gallery = $("gallery");
+  var contextMenu = $("contextMenu");
 
-  $("uploadBtn").addEventListener("click", () => $("fileInput").click());
-  $("fileInput").addEventListener("change", handleFileChange);
+  $("localBtn").addEventListener("click", function(){ $("fileLocal").click(); });
+  $("cameraBtn").addEventListener("click", function(){ $("fileCamera").click(); });
+  $("fileLocal").addEventListener("change", handleFileChange);
+  $("fileCamera").addEventListener("change", handleFileChange);
   $("createBtn").addEventListener("click", createStickerFromSource);
   $("addBoardBtn").addEventListener("click", addCurrentToBoard);
   $("shareBtn").addEventListener("click", shareBoardImage);
+  $("clearCurrentBtn").addEventListener("click", clearCurrentPreview);
 
-  contextMenu.addEventListener("click", (e) => {
-    const action = e.target?.dataset?.action;
+  contextMenu.addEventListener("click", function(e){
+    var action = e.target && e.target.dataset ? e.target.dataset.action : "";
     if(!action) return;
     if(action === "delete") deleteSelected();
+    else if(action === "clear") clearBoard();
     else reorderSelected(action);
   });
 
   function persistBoard(){ localStorage.setItem(BOARD_KEY, JSON.stringify(state.boardItems)); }
   function persistLibrary(){ localStorage.setItem(LIBRARY_KEY, JSON.stringify(state.libraryItems)); }
+
   function setStatus(text){ statusBox.innerHTML = text; }
 
   function setPreview(src){
@@ -334,23 +381,35 @@
   }
 
   function renderSubjectPills(meta){
-    if(!meta){ subjectPills.innerHTML = ""; return; }
-    subjectPills.innerHTML = `
-      <div class="pill">主体：${meta.subject || "未识别"}</div>
-      <div class="pill">类型：${meta.type || "object"}</div>
-    `;
+    if(!meta){
+      subjectPills.innerHTML = "";
+      return;
+    }
+    subjectPills.innerHTML =
+      '<div class="pill">主体：' + escapeHtml(meta.subject || "未识别") + '</div>' +
+      '<div class="pill">类型：' + escapeHtml(meta.type || "object") + '</div>';
   }
 
   async function handleFileChange(e){
-    const file = e.target.files && e.target.files[0];
+    var file = e.target.files && e.target.files[0];
     if(!file) return;
-    const raw = await fileToDataURL(file);
+    var raw = await fileToDataURL(file);
     state.sourceImage = await compressDataUrl(raw, 1400, 0.86);
     state.cutoutDataUrl = "";
     state.currentMeta = null;
     renderSubjectPills(null);
     setPreview(state.sourceImage);
     setStatus("图片已上传，点击“AI抠图生成贴纸”开始处理。");
+    e.target.value = "";
+  }
+
+  function clearCurrentPreview(){
+    state.sourceImage = "";
+    state.cutoutDataUrl = "";
+    state.currentMeta = null;
+    setPreview("");
+    renderSubjectPills(null);
+    setStatus("已清空当前预览。");
   }
 
   async function createStickerFromSource(){
@@ -360,118 +419,119 @@
     }
     try{
       setStatus("1/3 正在快速识别主体类型...");
-      const fastInput = await compressDataUrl(state.sourceImage, 720, 0.72);
-      const meta = await identifySubject(fastInput);
+      var fastInput = await compressDataUrl(state.sourceImage, 720, 0.72);
+      var meta = await identifySubject(fastInput);
       state.currentMeta = meta;
       renderSubjectPills(meta);
 
       setStatus("2/3 正在加载 AI 抠图引擎...");
-      const removeBackground = await loadBackgroundRemoval();
+      var removeBackground = await loadBackgroundRemoval();
 
       setStatus("3/3 正在生成透明 PNG 与 6pt 粗不规则白边贴纸...");
-      const cutoutBlob = await removeBackground(dataUrlToBlob(state.sourceImage), { progress: () => {} });
-      const stickerBlob = await buildTrueStickerBlob(cutoutBlob);
+      var cutoutBlob = await removeBackground(dataUrlToBlob(state.sourceImage), { progress: function(){} });
+      var stickerBlob = await buildTrueStickerBlob(cutoutBlob);
       state.cutoutDataUrl = await blobToDataURL(stickerBlob);
 
       setPreview(state.cutoutDataUrl);
-      setStatus("✅ 贴纸生成完成，已自动加入贴纸库。");
-
       autoAddToLibrary();
       renderGallery();
+      setStatus("✅ 贴纸生成完成，已自动加入贴纸库。");
     }catch(err){
       console.error(err);
-      setStatus("❌ 生成失败：" + (err.message || err));
-      alert("贴纸生成失败，请稍后重试。\n" + (err.message || err));
+      setStatus("❌ 生成失败：" + (err && err.message ? err.message : err));
+      alert("贴纸生成失败，请稍后重试。\n" + (err && err.message ? err.message : err));
     }
   }
 
   function autoAddToLibrary(){
     if(!state.cutoutDataUrl) return;
-    const item = {
-      id: Date.now(),
+    var item = {
+      id: Date.now() + Math.floor(Math.random() * 1000),
       src: state.cutoutDataUrl,
-      subject: state.currentMeta?.subject || "未知主体",
-      type: state.currentMeta?.type || "object",
+      subject: state.currentMeta && state.currentMeta.subject ? state.currentMeta.subject : "未知主体",
+      type: state.currentMeta && state.currentMeta.type ? state.currentMeta.type : "object",
       createdAt: new Date().toLocaleString()
     };
     state.libraryItems.unshift(item);
-    if(state.libraryItems.length > 100) state.libraryItems.length = 100;
+    if(state.libraryItems.length > 120) state.libraryItems.length = 120;
     persistLibrary();
   }
 
   async function identifySubject(imageDataUrl){
     try{
-      const res = await fetch("/api/sticker", {
+      var res = await fetch("/api/sticker", {
         method: "POST",
         headers: { "Content-Type":"application/json" },
         body: JSON.stringify({ image: imageDataUrl })
       });
-      const data = await res.json();
-      return data && !data.error ? data : { subject:"未知主体", type:"object" };
+      var data = await res.json();
+      return data && !data.error ? data : { subject: "未知主体", type: "object" };
     }catch(e){
-      return { subject:"未知主体", type:"object" };
+      return { subject: "未知主体", type: "object" };
     }
   }
 
   async function loadBackgroundRemoval(){
     if(state.bgRemovalLoaded) return state.bgRemovalLoaded;
-    const urls = [
+    var urls = [
       "https://esm.sh/@imgly/background-removal?bundle",
       "https://cdn.jsdelivr.net/npm/@imgly/background-removal/+esm"
     ];
-    let lastErr = null;
-    for(const url of urls){
+    var lastErr = null;
+    for(var i=0;i<urls.length;i++){
       try{
-        const mod = await import(url);
+        var mod = await import(urls[i]);
         if(mod && mod.removeBackground){
           state.bgRemovalLoaded = mod.removeBackground;
           return mod.removeBackground;
         }
-      }catch(err){ lastErr = err; }
+      }catch(err){
+        lastErr = err;
+      }
     }
     throw lastErr || new Error("背景移除引擎加载失败");
   }
 
   async function buildTrueStickerBlob(inputBlob){
-    const bmp = await createImageBitmap(inputBlob);
-    const w = bmp.width, h = bmp.height;
+    var bmp = await createImageBitmap(inputBlob);
+    var w = bmp.width, h = bmp.height;
 
-    const srcCanvas = document.createElement("canvas");
+    var srcCanvas = document.createElement("canvas");
     srcCanvas.width = w;
     srcCanvas.height = h;
-    const sctx = srcCanvas.getContext("2d");
+    var sctx = srcCanvas.getContext("2d");
     sctx.drawImage(bmp, 0, 0);
 
-    const border = 52; // ~6pt 粗白边
-    const pad = border * 4;
+    var border = 46; // 6pt 粗白边视觉
+    var pad = border * 4;
 
-    const maskCanvas = document.createElement("canvas");
+    var maskCanvas = document.createElement("canvas");
     maskCanvas.width = w;
     maskCanvas.height = h;
-    const mctx = maskCanvas.getContext("2d");
+    var mctx = maskCanvas.getContext("2d");
     mctx.drawImage(srcCanvas, 0, 0);
 
-    const imgData = mctx.getImageData(0, 0, w, h);
-    for(let i=0; i<imgData.data.length; i+=4){
-      const a = imgData.data[i+3];
-      imgData.data[i] = 255;
-      imgData.data[i+1] = 255;
-      imgData.data[i+2] = 255;
-      imgData.data[i+3] = a;
+    var imgData = mctx.getImageData(0, 0, w, h);
+    for(var p=0; p<imgData.data.length; p+=4){
+      var a = imgData.data[p+3];
+      imgData.data[p] = 255;
+      imgData.data[p+1] = 255;
+      imgData.data[p+2] = 255;
+      imgData.data[p+3] = a;
     }
     mctx.putImageData(imgData, 0, 0);
 
-    const outCanvas = document.createElement("canvas");
+    var outCanvas = document.createElement("canvas");
     outCanvas.width = w + pad * 2;
     outCanvas.height = h + pad * 2;
-    const ctx = outCanvas.getContext("2d");
-    const ox = pad, oy = pad;
+    var ctx = outCanvas.getContext("2d");
+    var ox = pad, oy = pad;
 
-    for(let ang = 0; ang < 360; ang += 6){
-      const rad = ang * Math.PI / 180;
-      for(let r = 4; r <= border; r += 5){
-        const dx = Math.round(Math.cos(rad) * r);
-        const dy = Math.round(Math.sin(rad) * r);
+    for(var ang = 0; ang < 360; ang += 6){
+      var rad = ang * Math.PI / 180;
+      for(var r = 4; r <= border; r += 5){
+        var dx = Math.round(Math.cos(rad) * r);
+        var dy = Math.round(Math.sin(rad) * r);
         ctx.drawImage(maskCanvas, ox + dx, oy + dy);
       }
     }
@@ -485,7 +545,9 @@
 
     ctx.drawImage(srcCanvas, ox, oy);
 
-    return await new Promise(resolve => outCanvas.toBlob(resolve, "image/png"));
+    return await new Promise(function(resolve){
+      outCanvas.toBlob(resolve, "image/png");
+    });
   }
 
   function addCurrentToBoard(){
@@ -493,36 +555,26 @@
       alert("请先生成贴纸");
       return;
     }
-    const item = {
-      id: Date.now(),
-      src: state.cutoutDataUrl,
-      x: 100 + (state.boardItems.length % 5) * 18,
-      y: 90 + (state.boardItems.length % 5) * 18,
-      scale: 1,
-      rotation: 0,
-      z: state.boardItems.length,
-      subject: state.currentMeta?.subject || "未知主体",
-      type: state.currentMeta?.type || "object"
-    };
-    state.boardItems.push(item);
-    state.selectedBoardId = item.id;
-    persistBoard();
-    renderBoard();
+    addSrcToBoard(state.cutoutDataUrl, state.currentMeta && state.currentMeta.subject ? state.currentMeta.subject : "未知主体", state.currentMeta && state.currentMeta.type ? state.currentMeta.type : "object");
   }
 
   function addLibraryToBoard(id){
-    const lib = state.libraryItems.find(x => x.id === id);
+    var lib = state.libraryItems.find(function(x){ return x.id === id; });
     if(!lib) return;
-    const item = {
-      id: Date.now(),
-      src: lib.src,
+    addSrcToBoard(lib.src, lib.subject || "未知主体", lib.type || "object");
+  }
+
+  function addSrcToBoard(src, subject, type){
+    var item = {
+      id: Date.now() + Math.floor(Math.random() * 1000),
+      src: src,
       x: 100 + (state.boardItems.length % 5) * 18,
       y: 90 + (state.boardItems.length % 5) * 18,
       scale: 1,
       rotation: 0,
       z: state.boardItems.length,
-      subject: lib.subject,
-      type: lib.type
+      subject: subject,
+      type: type
     };
     state.boardItems.push(item);
     state.selectedBoardId = item.id;
@@ -531,7 +583,7 @@
   }
 
   function deleteLibraryItem(id){
-    state.libraryItems = state.libraryItems.filter(x => x.id !== id);
+    state.libraryItems = state.libraryItems.filter(function(x){ return x.id !== id; });
     persistLibrary();
     renderGallery();
   }
@@ -552,62 +604,67 @@
     }
 
     board.classList.remove("empty");
-    const sorted = [...state.boardItems].sort((a,b) => (a.z||0) - (b.z||0));
+    var sorted = state.boardItems.slice().sort(function(a,b){ return (a.z || 0) - (b.z || 0); });
 
-    sorted.forEach(item => {
-      const wrap = document.createElement("div");
-      wrap.className = "sticker-wrap";
-      wrap.dataset.id = item.id;
-      applyItemTransform(wrap, item);
+    for(var i=0;i<sorted.length;i++){
+      (function(item){
+        var wrap = document.createElement("div");
+        wrap.className = "sticker-wrap";
+        wrap.dataset.id = item.id;
+        applyItemTransform(wrap, item);
 
-      const img = document.createElement("img");
-      img.src = item.src;
-      img.className = "sticker";
-      wrap.appendChild(img);
+        var img = document.createElement("img");
+        img.src = item.src;
+        img.className = "sticker";
+        img.draggable = false;
+        wrap.appendChild(img);
 
-      attachGesture(wrap, item);
-      board.appendChild(wrap);
-    });
+        attachGesture(wrap, item);
+        board.appendChild(wrap);
+      })(sorted[i]);
+    }
 
     updateSelectionVisuals();
   }
 
   function updateSelectionVisuals(){
-    const wraps = board.querySelectorAll(".sticker-wrap");
-    wraps.forEach(w => {
-      const id = Number(w.dataset.id);
-      w.classList.toggle("selected", id === state.selectedBoardId);
+    var wraps = board.querySelectorAll(".sticker-wrap");
+    wraps.forEach(function(w){
+      var id = Number(w.dataset.id);
+      if(id === state.selectedBoardId) w.classList.add("selected");
+      else w.classList.remove("selected");
     });
   }
 
   function applyItemTransform(el, item){
     el.style.left = item.x + "px";
     el.style.top = item.y + "px";
-    el.style.transform = `translate(-50%,-50%) rotate(${item.rotation}deg) scale(${item.scale})`;
+    el.style.transform = "translate(-50%,-50%) rotate(" + item.rotation + "deg) scale(" + item.scale + ")";
     el.style.zIndex = item.z;
   }
 
   function attachGesture(el, item){
-    let pressTimer = null;
-    let dragging = false;
-    let startX = 0, startY = 0, startItemX = 0, startItemY = 0;
-    let gesture = null;
-    let lastTapTime = 0;
-    let rafId = 0;
-    let pendingMove = null;
+    var pressTimer = null;
+    var dragging = false;
+    var moved = false;
+    var gesture = null;
+    var startX = 0, startY = 0, startItemX = 0, startItemY = 0;
+    var lastTapTime = 0;
+    var rafToken = 0;
+    var moveCache = null;
 
-    function scheduleTransform(x, y, scale, rotation){
-      pendingMove = { x, y, scale, rotation };
-      if(rafId) return;
-      rafId = requestAnimationFrame(() => {
-        rafId = 0;
-        if(!pendingMove) return;
-        item.x = pendingMove.x;
-        item.y = pendingMove.y;
-        item.scale = pendingMove.scale;
-        item.rotation = pendingMove.rotation;
+    function scheduleMove(x, y, scale, rotation){
+      moveCache = { x: x, y: y, scale: scale, rotation: rotation };
+      if(rafToken) return;
+      rafToken = requestAnimationFrame(function(){
+        rafToken = 0;
+        if(!moveCache) return;
+        item.x = moveCache.x;
+        item.y = moveCache.y;
+        item.scale = moveCache.scale;
+        item.rotation = moveCache.rotation;
         applyItemTransform(el, item);
-        pendingMove = null;
+        moveCache = null;
       });
     }
 
@@ -618,22 +675,37 @@
       }
     }
 
-    function onSinglePointStart(clientX, clientY){
+    function beginSingle(clientX, clientY){
       startX = clientX;
       startY = clientY;
       startItemX = item.x;
       startItemY = item.y;
       dragging = false;
+      moved = false;
       clearPress();
-      pressTimer = setTimeout(() => { dragging = true; }, LONG_PRESS_MS);
+      pressTimer = setTimeout(function(){
+        dragging = true;
+        state.draggingNow = true;
+        document.body.style.overflow = "hidden";
+      }, LONG_PRESS_MS);
     }
 
-    function onTap(){
-      const now = Date.now();
+    function endDrag(){
+      clearPress();
+      if(dragging){
+        dragging = false;
+        state.draggingNow = false;
+        document.body.style.overflow = "";
+      }
+      gesture = null;
+      persistBoard();
+    }
+
+    function handleTap(){
+      var now = Date.now();
       state.selectedBoardId = item.id;
       updateSelectionVisuals();
-
-      if(now - lastTapTime < 300){
+      if(now - lastTapTime < 320){
         showMenu();
       }else{
         hideMenu();
@@ -641,24 +713,25 @@
       lastTapTime = now;
     }
 
-    el.addEventListener("click", (e) => {
+    el.addEventListener("click", function(e){
       e.stopPropagation();
-      onTap();
+      if(moved || state.draggingNow) return;
+      handleTap();
     });
 
-    // touch
-    el.addEventListener("touchstart", (e) => {
+    el.addEventListener("touchstart", function(e){
       e.stopPropagation();
       state.selectedBoardId = item.id;
       updateSelectionVisuals();
 
       if(e.touches.length === 1){
-        const t = e.touches[0];
-        onSinglePointStart(t.clientX, t.clientY);
-      } else if(e.touches.length === 2){
+        var t = e.touches[0];
+        beginSingle(t.clientX, t.clientY);
+      }else if(e.touches.length === 2){
         clearPress();
         dragging = false;
-        const t1 = e.touches[0], t2 = e.touches[1];
+        moved = true;
+        var t1 = e.touches[0], t2 = e.touches[1];
         gesture = {
           startScale: item.scale,
           startRotation: item.rotation,
@@ -671,80 +744,78 @@
       }
     }, { passive: true });
 
-    el.addEventListener("touchmove", (e) => {
+    el.addEventListener("touchmove", function(e){
       if(e.touches.length === 1){
-        const t = e.touches[0];
-        const dx = t.clientX - startX;
-        const dy = t.clientY - startY;
+        var t = e.touches[0];
+        var dx = t.clientX - startX;
+        var dy = t.clientY - startY;
+        if(Math.hypot(dx, dy) > 8) moved = true;
+
         if(dragging){
           e.preventDefault();
-          scheduleTransform(startItemX + dx, startItemY + dy, item.scale, item.rotation);
-        } else {
-          const movedFar = Math.hypot(dx, dy) > 10;
-          if(movedFar) clearPress();
+          scheduleMove(startItemX + dx, startItemY + dy, item.scale, item.rotation);
+        }else if(moved){
+          clearPress();
         }
-      } else if(e.touches.length >= 2 && gesture){
+      }else if(e.touches.length >= 2 && gesture){
         e.preventDefault();
         clearPress();
-        const t1 = e.touches[0], t2 = e.touches[1];
-        const newDist = distance(t1, t2);
-        const newAngle = angleDeg(t1, t2);
-        const c = centerPt(t1, t2);
-        const nextScale = Math.max(0.35, Math.min(3.2, gesture.startScale * (newDist / gesture.startDist)));
-        const nextRotation = gesture.startRotation + (newAngle - gesture.startAngle);
-        const nextX = gesture.startX + (c.x - gesture.startCenter.x);
-        const nextY = gesture.startY + (c.y - gesture.startCenter.y);
-        scheduleTransform(nextX, nextY, nextScale, nextRotation);
+        moved = true;
+        var a = e.touches[0], b = e.touches[1];
+        var newDist = distance(a, b);
+        var newAngle = angleDeg(a, b);
+        var c = centerPt(a, b);
+        var nextScale = Math.max(0.35, Math.min(3.2, gesture.startScale * (newDist / gesture.startDist)));
+        var nextRotation = gesture.startRotation + (newAngle - gesture.startAngle);
+        var nextX = gesture.startX + (c.x - gesture.startCenter.x);
+        var nextY = gesture.startY + (c.y - gesture.startCenter.y);
+        scheduleMove(nextX, nextY, nextScale, nextRotation);
       }
     }, { passive: false });
 
-    el.addEventListener("touchend", () => {
-      clearPress();
-      dragging = false;
-      gesture = null;
-      persistBoard();
+    el.addEventListener("touchend", function(){
+      setTimeout(function(){ moved = false; }, 0);
+      endDrag();
     });
 
-    el.addEventListener("touchcancel", () => {
-      clearPress();
-      dragging = false;
-      gesture = null;
-      persistBoard();
+    el.addEventListener("touchcancel", function(){
+      moved = false;
+      endDrag();
     });
 
     // mouse fallback
-    let mouseDown = false;
-    el.addEventListener("mousedown", (e) => {
+    var mouseDown = false;
+    el.addEventListener("mousedown", function(e){
       e.preventDefault();
       e.stopPropagation();
       state.selectedBoardId = item.id;
       updateSelectionVisuals();
       mouseDown = true;
-      onSinglePointStart(e.clientX, e.clientY);
+      beginSingle(e.clientX, e.clientY);
     });
 
-    window.addEventListener("mousemove", (e) => {
+    window.addEventListener("mousemove", function(e){
       if(!mouseDown) return;
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
+      var dx = e.clientX - startX;
+      var dy = e.clientY - startY;
+      if(Math.hypot(dx, dy) > 5) moved = true;
       if(dragging){
-        scheduleTransform(startItemX + dx, startItemY + dy, item.scale, item.rotation);
-      } else if(Math.hypot(dx, dy) > 5){
+        scheduleMove(startItemX + dx, startItemY + dy, item.scale, item.rotation);
+      }else if(moved){
         clearPress();
       }
     });
 
-    window.addEventListener("mouseup", () => {
+    window.addEventListener("mouseup", function(){
       if(mouseDown){
         mouseDown = false;
-        clearPress();
-        dragging = false;
-        persistBoard();
+        moved = false;
+        endDrag();
       }
     });
   }
 
-  board.addEventListener("click", (e) => {
+  board.addEventListener("click", function(e){
     if(e.target === board){
       state.selectedBoardId = null;
       hideMenu();
@@ -761,23 +832,27 @@
       alert("请先选中一个贴纸");
       return;
     }
-    const sorted = [...state.boardItems].sort((a,b) => a.z - b.z);
-    const cur = sorted.findIndex(x => x.id === state.selectedBoardId);
+    var sorted = state.boardItems.slice().sort(function(a,b){ return a.z - b.z; });
+    var cur = sorted.findIndex(function(x){ return x.id === state.selectedBoardId; });
     if(cur < 0) return;
 
     if(mode === "front" && cur < sorted.length - 1){
-      const it = sorted.splice(cur, 1)[0];
-      sorted.push(it);
+      var frontItem = sorted.splice(cur, 1)[0];
+      sorted.push(frontItem);
     }else if(mode === "back" && cur > 0){
-      const it = sorted.splice(cur, 1)[0];
-      sorted.unshift(it);
+      var backItem = sorted.splice(cur, 1)[0];
+      sorted.unshift(backItem);
     }else if(mode === "up" && cur < sorted.length - 1){
-      [sorted[cur], sorted[cur+1]] = [sorted[cur+1], sorted[cur]];
+      var tmpUp = sorted[cur];
+      sorted[cur] = sorted[cur + 1];
+      sorted[cur + 1] = tmpUp;
     }else if(mode === "down" && cur > 0){
-      [sorted[cur], sorted[cur-1]] = [sorted[cur-1], sorted[cur]];
+      var tmpDown = sorted[cur];
+      sorted[cur] = sorted[cur - 1];
+      sorted[cur - 1] = tmpDown;
     }
 
-    sorted.forEach((it, i) => it.z = i);
+    sorted.forEach(function(it, i){ it.z = i; });
     state.boardItems = sorted;
     persistBoard();
     renderBoard();
@@ -788,11 +863,22 @@
       alert("请先选中一个贴纸");
       return;
     }
-    state.boardItems = state.boardItems.filter(x => x.id !== state.selectedBoardId);
+    state.boardItems = state.boardItems.filter(function(x){ return x.id !== state.selectedBoardId; });
     state.selectedBoardId = null;
     persistBoard();
     hideMenu();
     renderBoard();
+  }
+
+  function clearBoard(){
+    if(!state.boardItems.length) return;
+    if(confirm("确定清空沙盘中的所有贴纸吗？")){
+      state.boardItems = [];
+      state.selectedBoardId = null;
+      persistBoard();
+      hideMenu();
+      renderBoard();
+    }
   }
 
   function renderGallery(){
@@ -801,22 +887,24 @@
       return;
     }
 
-    gallery.innerHTML = state.libraryItems.map(item => `
-      <div class="thumb">
-        <img src="${item.src}" alt="">
-        <div class="cap">${item.subject || "未知主体"}<br>${item.createdAt || ""}</div>
-        <div class="thumb-actions">
-          <button class="small-btn use" data-use="${item.id}">加入沙盘</button>
-          <button class="small-btn del" data-del="${item.id}">删除</button>
-        </div>
-      </div>
-    `).join("");
+    gallery.innerHTML = state.libraryItems.map(function(item){
+      return (
+        '<div class="thumb">' +
+          '<img loading="lazy" decoding="async" src="' + item.src + '" alt="">' +
+          '<div class="cap">' + escapeHtml(item.subject || "未知主体") + '<br>' + escapeHtml(item.createdAt || "") + '</div>' +
+          '<div class="thumb-actions">' +
+            '<button class="small-btn use" data-use="' + item.id + '">加入沙盘</button>' +
+            '<button class="small-btn del" data-del="' + item.id + '">删除</button>' +
+          '</div>' +
+        '</div>'
+      );
+    }).join("");
 
-    gallery.querySelectorAll("[data-use]").forEach(btn => {
-      btn.addEventListener("click", () => addLibraryToBoard(Number(btn.dataset.use)));
+    gallery.querySelectorAll("[data-use]").forEach(function(btn){
+      btn.addEventListener("click", function(){ addLibraryToBoard(Number(btn.dataset.use)); });
     });
-    gallery.querySelectorAll("[data-del]").forEach(btn => {
-      btn.addEventListener("click", () => deleteLibraryItem(Number(btn.dataset.del)));
+    gallery.querySelectorAll("[data-del]").forEach(function(btn){
+      btn.addEventListener("click", function(){ deleteLibraryItem(Number(btn.dataset.del)); });
     });
   }
 
@@ -826,8 +914,8 @@
       return;
     }
     try{
-      const blob = await exportBoardToBlob();
-      const file = new File([blob], "auroramap-board.png", { type: "image/png" });
+      var blob = await exportBoardToBlob();
+      var file = new File([blob], "auroramap-board.png", { type: "image/png" });
       if(navigator.canShare && navigator.canShare({ files:[file] })){
         await navigator.share({
           title: "AuroraMap 沙盘贴纸",
@@ -835,62 +923,66 @@
           files: [file]
         });
       }else{
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
         a.href = url;
         a.download = "auroramap-board.png";
         a.click();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
       }
     }catch(err){
-      alert("分享失败：" + (err.message || err));
+      alert("分享失败：" + (err && err.message ? err.message : err));
     }
   }
 
   async function exportBoardToBlob(){
-    const rect = board.getBoundingClientRect();
-    const canvas = document.createElement("canvas");
+    var rect = board.getBoundingClientRect();
+    var canvas = document.createElement("canvas");
     canvas.width = rect.width * 2;
     canvas.height = rect.height * 2;
-    const ctx = canvas.getContext("2d");
+    var ctx = canvas.getContext("2d");
     ctx.scale(2, 2);
 
-    const grad = ctx.createLinearGradient(0,0,0,rect.height);
+    var grad = ctx.createLinearGradient(0,0,0,rect.height);
     grad.addColorStop(0, "#f6e2af");
     grad.addColorStop(1, "#deb572");
     ctx.fillStyle = grad;
     ctx.fillRect(0,0,rect.width,rect.height);
 
     ctx.fillStyle = "rgba(255,255,255,.28)";
-    for(let y=16;y<rect.height;y+=34){
-      for(let x=16;x<rect.width;x+=34){
+    for(var y=16;y<rect.height;y+=34){
+      for(var x=16;x<rect.width;x+=34){
         ctx.beginPath();
         ctx.arc(x,y,2,0,Math.PI*2);
         ctx.fill();
       }
     }
 
-    const sorted = [...state.boardItems].sort((a,b) => (a.z||0) - (b.z||0));
-    for(const item of sorted){
-      const img = await loadImage(item.src);
+    var sorted = state.boardItems.slice().sort(function(a,b){ return (a.z || 0) - (b.z || 0); });
+    for(var i=0;i<sorted.length;i++){
+      var item = sorted[i];
+      var img = await loadImage(item.src);
       ctx.save();
       ctx.translate(item.x, item.y);
       ctx.rotate(item.rotation * Math.PI / 180);
       ctx.scale(item.scale, item.scale);
-      const width = BASE_WIDTH;
-      const height = img.height / img.width * width;
+      var width = BASE_WIDTH;
+      var height = img.height / img.width * width;
       ctx.drawImage(img, -width/2, -height/2, width, height);
       ctx.restore();
     }
-    return await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+
+    return await new Promise(function(resolve){
+      canvas.toBlob(resolve, "image/png");
+    });
   }
 
-  async function compressDataUrl(dataUrl, maxSide = 1200, quality = 0.82){
-    const img = await loadImage(dataUrl);
-    const ratio = Math.min(1, maxSide / Math.max(img.width, img.height));
-    const w = Math.max(1, Math.round(img.width * ratio));
-    const h = Math.max(1, Math.round(img.height * ratio));
-    const canvas = document.createElement("canvas");
+  async function compressDataUrl(dataUrl, maxSide, quality){
+    var img = await loadImage(dataUrl);
+    var ratio = Math.min(1, maxSide / Math.max(img.width, img.height));
+    var w = Math.max(1, Math.round(img.width * ratio));
+    var h = Math.max(1, Math.round(img.height * ratio));
+    var canvas = document.createElement("canvas");
     canvas.width = w;
     canvas.height = h;
     canvas.getContext("2d").drawImage(img, 0, 0, w, h);
@@ -898,39 +990,45 @@
   }
 
   function fileToDataURL(file){
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = e => resolve(e.target.result);
+    return new Promise(function(resolve, reject){
+      var reader = new FileReader();
+      reader.onload = function(e){ resolve(e.target.result); };
       reader.onerror = reject;
       reader.readAsDataURL(file);
     });
   }
 
   function blobToDataURL(blob){
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = e => resolve(e.target.result);
+    return new Promise(function(resolve, reject){
+      var reader = new FileReader();
+      reader.onload = function(e){ resolve(e.target.result); };
       reader.onerror = reject;
       reader.readAsDataURL(blob);
     });
   }
 
   function dataUrlToBlob(dataUrl){
-    const arr = dataUrl.split(",");
-    const mime = arr[0].match(/:(.*?);/)[1];
-    const bstr = atob(arr[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
+    var arr = dataUrl.split(",");
+    var mime = arr[0].match(/:(.*?);/)[1];
+    var bstr = atob(arr[1]);
+    var n = bstr.length;
+    var u8arr = new Uint8Array(n);
     while(n--) u8arr[n] = bstr.charCodeAt(n);
     return new Blob([u8arr], { type: mime });
   }
 
   function loadImage(src){
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => resolve(img);
+    return new Promise(function(resolve, reject){
+      var img = new Image();
+      img.onload = function(){ resolve(img); };
       img.onerror = reject;
       img.src = src;
+    });
+  }
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, function(s){
+      return ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[s];
     });
   }
 
