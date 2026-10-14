@@ -5,11 +5,11 @@ const client = new OpenAI({
   baseURL: "https://ai.evanovation.com/v1"
 });
 
-function fallbackTemplate(type) {
+function normalizeType(type) {
   const t = String(type || "").toLowerCase();
   if (t.includes("person") || t.includes("human")) return "person";
   if (t.includes("building") || t.includes("architecture")) return "building";
-  if (t.includes("product") || t.includes("goods")) return "product";
+  if (t.includes("product") || t.includes("goods") || t.includes("item_product")) return "product";
   return "object";
 }
 
@@ -25,9 +25,9 @@ export default async function handler(req, res) {
     }
 
     const response = await client.chat.completions.create({
-      model: "gpt-6-luna",
+      model: "gpt-6-sol",
       temperature: 0,
-      max_tokens: 180,
+      max_tokens: 80,
       messages: [
         {
           role: "system",
@@ -47,8 +47,8 @@ person / building / product / object
         {
           role: "user",
           content: [
-            { type: "text", text: "识别图片主体，并进行分类。" },
-            { type: "image_url", image_url: { url: image, detail: "high" } }
+            { type: "text", text: "快速识别图片主体，并进行分类。" },
+            { type: "image_url", image_url: { url: image, detail: "low" } }
           ]
         }
       ]
@@ -58,11 +58,8 @@ person / building / product / object
     text = text.replace(/```json/g, "").replace(/```/g, "").trim();
 
     let data = { subject: "未知主体", type: "object" };
-    try {
-      data = JSON.parse(text);
-    } catch {}
-
-    data.type = fallbackTemplate(data.type);
+    try { data = JSON.parse(text); } catch {}
+    data.type = normalizeType(data.type);
     return res.status(200).json(data);
   } catch (e) {
     return res.status(200).json({ subject: "未知主体", type: "object" });
