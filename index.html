@@ -1,149 +1,925 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>AuroraMap AI Sticker</title>
-<style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Microsoft YaHei",Arial;background:linear-gradient(135deg,#dbeafe,#ede9fe)}
-.app{max-width:430px;margin:auto;padding:16px 16px 90px}
-.card{background:rgba(255,255,255,.88);border-radius:24px;padding:16px;margin-bottom:16px;box-shadow:0 8px 25px #0001}
-h2{margin:0 0 12px}
-button{width:100%;height:48px;border:0;border-radius:24px;background:#2563eb;color:#fff;font-weight:700;margin-top:10px}
-input{display:none}
-.preview{height:220px;border:2px dashed #60a5fa;border-radius:20px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fff}
-.preview img{max-width:100%;max-height:100%;object-fit:contain}
-.sandbox{height:380px;border-radius:25px;overflow:hidden;position:relative;
-background:radial-gradient(circle,#ffffff66 2px,transparent 3px) 0 0/35px 35px,linear-gradient(#f4dda8,#d9ae67)}
-.sticker{position:absolute;width:110px;touch-action:none;filter:drop-shadow(0 10px 12px #0004)}
-.info{padding:12px;background:#eff6ff;border-radius:16px}
-nav{position:fixed;bottom:0;left:0;right:0;height:70px;background:#fff;display:flex;justify-content:space-around;align-items:center;box-shadow:0 -5px 20px #0002}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
+  <title>AuroraMap AI Sticker Studio</title>
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      background: linear-gradient(135deg, #dbeafe, #ede9fe);
+      color: #111827;
+    }
+    body {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .app {
+      max-width: 430px;
+      margin: 0 auto;
+      padding: 16px 14px 96px;
+    }
+    .hero {
+      margin: 8px 0 16px;
+    }
+    .hero h1 {
+      margin: 0;
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: .2px;
+    }
+    .hero p {
+      margin: 6px 0 0;
+      color: #64748b;
+      font-size: 13px;
+    }
+    .card {
+      background: rgba(255,255,255,.84);
+      backdrop-filter: blur(18px);
+      border: 1px solid rgba(255,255,255,.4);
+      border-radius: 26px;
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.08);
+      margin-bottom: 14px;
+    }
+    h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      font-weight: 900;
+    }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .preview {
+      height: 220px;
+      border: 2px dashed #93c5fd;
+      border-radius: 22px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+      text-align: center;
+      color: #64748b;
+    }
+    .preview img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      display: none;
+    }
+    .preview.show img { display: block; }
+    .preview.show .placeholder { display: none; }
+    .placeholder {
+      padding: 16px;
+      line-height: 1.8;
+      font-size: 14px;
+    }
+    input[type=file] { display: none; }
+    button {
+      width: 100%;
+      height: 48px;
+      border: 0;
+      border-radius: 24px;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: white;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    button.secondary {
+      background: #111827;
+    }
+    button.ghost {
+      background: #eef2ff;
+      color: #3730a3;
+    }
+    button.warn {
+      background: #ef4444;
+    }
+    .status {
+      background: #eff6ff;
+      border-radius: 18px;
+      padding: 12px 14px;
+      color: #1d4ed8;
+      font-size: 14px;
+      line-height: 1.7;
+      min-height: 72px;
+    }
+    .board-wrap {
+      background: linear-gradient(180deg, #fff7e8, #efd09b);
+      border-radius: 28px;
+      padding: 12px;
+      box-shadow:
+        inset 0 0 0 8px rgba(255,255,255,.18),
+        inset 0 0 24px rgba(141,96,36,.16);
+    }
+    .board {
+      height: 380px;
+      border-radius: 22px;
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 16px 16px, rgba(255,255,255,.3) 0 2px, transparent 3px) 0 0/34px 34px,
+        linear-gradient(180deg, #f6e2af, #deb572);
+      touch-action: none;
+      user-select: none;
+    }
+    .board.empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #7c5a2f;
+      text-align: center;
+      padding: 18px;
+      line-height: 1.8;
+    }
+    .sticker {
+      position: absolute;
+      width: 140px;
+      transform-origin: center center;
+      touch-action: none;
+      cursor: grab;
+      user-select: none;
+      filter: drop-shadow(0 12px 14px rgba(0,0,0,.18));
+    }
+    .sticker.selected {
+      outline: 2px dashed rgba(37,99,235,.7);
+      outline-offset: 4px;
+    }
+    .toolbar-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .mini {
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.6;
+      margin-top: 8px;
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .thumb {
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #e5e7eb;
+      padding: 8px;
+      text-align: center;
+    }
+    .thumb img {
+      width: 100%;
+      height: 88px;
+      object-fit: contain;
+      display: block;
+    }
+    .thumb .cap {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #64748b;
+      line-height: 1.4;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      color: #111827;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      margin: 8px 8px 0 0;
+    }
+    .top-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .small-btn {
+      height: 38px;
+      border-radius: 999px;
+      padding: 0 14px;
+      width: auto;
+      min-width: 0;
+      font-size: 13px;
+    }
+    .note {
+      color: #64748b;
+      font-size: 12px;
+      line-height: 1.65;
+    }
+    .template-preview {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .template-card {
+      flex: 1;
+      min-width: 92px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 18px;
+      padding: 10px;
+      text-align: center;
+      font-size: 12px;
+    }
+    .template-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      margin: 0 auto 8px;
+    }
+    @media (max-width: 380px) {
+      .gallery { grid-template-columns: repeat(2, 1fr); }
+      .row { grid-template-columns: 1fr; }
+      .toolbar-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
 </head>
 <body>
 <div class="app">
-<div class="card"><h2>🌌 AuroraMap</h2><div>AI旅行贴纸工作室</div></div>
+  <div class="hero">
+    <h1>🌌 AuroraMap</h1>
+    <p>AI Sticker Studio · 真正透明 PNG 抠图贴纸 · 手机 / 微信浏览器适配</p>
+  </div>
 
-<div class="card">
-<h2>🏷 AI主体贴纸</h2>
-<input id="file" type="file" accept="image/*" capture="environment">
-<button id="pick">上传图片</button>
-<div class="preview"><img id="preview"></div>
-<div id="info" class="info">等待图片</div>
-<button id="create">✨ AI抠图生成贴纸</button>
-<button id="save">💾保存到沙盘</button>
-</div>
+  <div class="card">
+    <h2>🏷 AI主体贴纸</h2>
+    <div class="preview" id="previewBox">
+      <img id="previewImage" alt="">
+      <div class="placeholder">上传人物 / 建筑 / 商品 / 物品图片<br>自动识别主体并生成透明 PNG 贴纸</div>
+    </div>
+    <input id="fileInput" type="file" accept="image/*" capture="environment">
+    <div class="row" style="margin-top:12px">
+      <button id="uploadBtn">上传图片</button>
+      <button id="createBtn" class="secondary">✨ AI抠图生成贴纸</button>
+    </div>
+    <div id="statusBox" class="status" style="margin-top:12px">等待图片</div>
+    <div id="subjectPills" class="top-tools"></div>
+    <div class="template-preview">
+      <div class="template-card"><div class="template-dot" style="background:#a855f7"></div>人物模板</div>
+      <div class="template-card"><div class="template-dot" style="background:#06b6d4"></div>建筑模板</div>
+      <div class="template-card"><div class="template-dot" style="background:#f59e0b"></div>商品模板</div>
+      <div class="template-card"><div class="template-dot" style="background:#22c55e"></div>物品模板</div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button id="saveBtn" class="ghost">💾 保存到沙盘</button>
+      <button id="shareBtn" class="ghost">📤 分享沙盘</button>
+    </div>
+    <div class="mini">AI 抠图：使用在线背景移除模型生成透明 PNG；白边会根据主体边缘自动扩展，不再是矩形模拟。</div>
+  </div>
 
-<div class="card">
-<h2>🏖 旅行贴纸沙盘</h2>
-<div id="board" class="sandbox"></div>
-</div>
-</div>
+  <div class="card">
+    <h2>🏖 贴纸沙盘</h2>
+    <div class="board-wrap">
+      <div id="board" class="board empty">上传并保存贴纸后会显示在这里<br>支持：拖动 / 双指缩放 / 旋转 / 图层排序 / 删除</div>
+    </div>
 
-<nav>
-<div>🏠<br>首页</div>
-<div>📷<br>拍照</div>
-<div>🏷<br>贴纸</div>
-<div>👤<br>我的</div>
-</nav>
+    <div class="toolbar-grid">
+      <button id="frontBtn" class="small-btn">置顶</button>
+      <button id="upBtn" class="small-btn">上移一层</button>
+      <button id="downBtn" class="small-btn">下移一层</button>
+      <button id="backBtn" class="small-btn">置底</button>
+      <button id="deleteBtn" class="small-btn warn">删除</button>
+      <button id="clearBtn" class="small-btn secondary">清空</button>
+    </div>
+    <div class="mini">选中贴纸后可调整图层顺序。双指手势可缩放与旋转；单指拖动可移动。</div>
+  </div>
+
+  <div class="card">
+    <h2>🗂 贴纸库</h2>
+    <div id="gallery" class="gallery">暂无贴纸</div>
+  </div>
+</div>
 
 <script>
-let source="";
-let sticker="";
-let list=JSON.parse(localStorage.getItem("aurora_stickers_v109")||"[]");
+(function(){
+  const STORAGE_KEY = "auroramap_sticker_studio_v111";
+  const $ = (id) => document.getElementById(id);
 
-const $=id=>document.getElementById(id);
+  const state = {
+    sourceImage: "",
+    cutoutDataUrl: "",
+    currentMeta: null,
+    stickers: [],
+    selectedId: null,
+    bgRemovalLoaded: null
+  };
 
-$("pick").onclick=()=>file.click();
+  // Load saved data
+  try {
+    state.stickers = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+  } catch (e) {
+    state.stickers = [];
+  }
 
-file.onchange=e=>{
- const f=e.target.files[0];
- if(!f)return;
- const r=new FileReader();
- r.onload=x=>{
-  source=x.target.result;
-  preview.src=source;
-  info.innerHTML="图片已上传";
- };
- r.readAsDataURL(f);
-};
+  const previewBox = $("previewBox");
+  const previewImage = $("previewImage");
+  const statusBox = $("statusBox");
+  const subjectPills = $("subjectPills");
+  const board = $("board");
+  const gallery = $("gallery");
 
-$("create").onclick=async()=>{
- if(!source)return alert("请上传图片");
- info.innerHTML="AI识别主体中...";
- try{
-  const r=await fetch("/api/sticker",{
-   method:"POST",
-   headers:{"Content-Type":"application/json"},
-   body:JSON.stringify({image:source})
+  $("uploadBtn").addEventListener("click", () => $("fileInput").click());
+  $("fileInput").addEventListener("change", handleFileChange);
+  $("createBtn").addEventListener("click", createStickerFromSource);
+  $("saveBtn").addEventListener("click", saveCurrentStickerToBoard);
+  $("shareBtn").addEventListener("click", shareBoardImage);
+
+  $("frontBtn").addEventListener("click", () => reorderSelected("front"));
+  $("backBtn").addEventListener("click", () => reorderSelected("back"));
+  $("upBtn").addEventListener("click", () => reorderSelected("up"));
+  $("downBtn").addEventListener("click", () => reorderSelected("down"));
+  $("deleteBtn").addEventListener("click", deleteSelected);
+  $("clearBtn").addEventListener("click", clearAll);
+
+  function setStatus(text){
+    statusBox.innerHTML = text;
+  }
+
+  function setPreview(src){
+    if(src){
+      previewBox.classList.add("show");
+      previewImage.src = src;
+    }else{
+      previewBox.classList.remove("show");
+      previewImage.removeAttribute("src");
+    }
+  }
+
+  function renderSubjectPills(meta){
+    if(!meta){
+      subjectPills.innerHTML = "";
+      return;
+    }
+    const pills = [
+      ["主体", meta.subject || "未识别"],
+      ["类型", meta.type || "object"],
+      ["模板", meta.templateLabel || "默认模板"]
+    ];
+    subjectPills.innerHTML = pills.map(([k,v]) => `<div class="pill">${k}：${v}</div>`).join("");
+  }
+
+  async function handleFileChange(e){
+    const file = e.target.files && e.target.files[0];
+    if(!file) return;
+    state.sourceImage = await fileToDataURL(file);
+    state.cutoutDataUrl = "";
+    state.currentMeta = null;
+    setPreview(state.sourceImage);
+    renderSubjectPills(null);
+    setStatus("图片已上传，点击“AI抠图生成贴纸”开始处理。");
+  }
+
+  async function createStickerFromSource(){
+    if(!state.sourceImage){
+      alert("请先上传图片");
+      return;
+    }
+
+    try{
+      setStatus("1/3 正在识别主体类型...");
+      const meta = await identifySubject(state.sourceImage);
+      state.currentMeta = enrichTemplateMeta(meta);
+      renderSubjectPills(state.currentMeta);
+
+      setStatus("2/3 正在加载 AI 抠图引擎...");
+      const removeBackground = await loadBackgroundRemoval();
+
+      setStatus("3/3 正在执行真正 AI 抠图并生成透明 PNG 贴纸...");
+      const cutoutBlob = await removeBackground(dataUrlToBlob(state.sourceImage), {
+        progress: () => {}
+      });
+
+      const stickerBlob = await buildTrueStickerBlob(cutoutBlob, state.currentMeta);
+      state.cutoutDataUrl = await blobToDataURL(stickerBlob);
+
+      setPreview(state.cutoutDataUrl);
+      setStatus(`✅ 贴纸生成完成：${state.currentMeta.templateLabel}。现在可以保存到沙盘。`);
+    }catch(err){
+      console.error(err);
+      setStatus("❌ 生成失败：" + (err.message || err));
+      alert("贴纸生成失败，请稍后重试。\n" + (err.message || err));
+    }
+  }
+
+  function enrichTemplateMeta(meta){
+    const type = String(meta.type || "").toLowerCase();
+    const out = { ...meta };
+
+    if(type.includes("person") || type.includes("human")){
+      out.template = "person";
+      out.templateLabel = "人物模板";
+      out.tagColor = "#a855f7";
+      out.tagText = "人物";
+      out.shadow = "rgba(168,85,247,.18)";
+    }else if(type.includes("building") || type.includes("architecture")){
+      out.template = "building";
+      out.templateLabel = "建筑模板";
+      out.tagColor = "#06b6d4";
+      out.tagText = "建筑";
+      out.shadow = "rgba(6,182,212,.18)";
+    }else if(type.includes("product") || type.includes("goods") || type.includes("item_product")){
+      out.template = "product";
+      out.templateLabel = "商品模板";
+      out.tagColor = "#f59e0b";
+      out.tagText = "商品";
+      out.shadow = "rgba(245,158,11,.2)";
+    }else{
+      out.template = "object";
+      out.templateLabel = "物品模板";
+      out.tagColor = "#22c55e";
+      out.tagText = "物品";
+      out.shadow = "rgba(34,197,94,.2)";
+    }
+    return out;
+  }
+
+  async function identifySubject(imageDataUrl){
+    try{
+      const res = await fetch("/api/sticker", {
+        method: "POST",
+        headers: { "Content-Type":"application/json" },
+        body: JSON.stringify({ image: imageDataUrl })
+      });
+      const data = await res.json();
+      if(data && !data.error) return data;
+    }catch(e){
+      console.warn("identifySubject failed", e);
+    }
+    return { subject: "未识别主体", type: "object" };
+  }
+
+  async function loadBackgroundRemoval(){
+    if(state.bgRemovalLoaded) return state.bgRemovalLoaded;
+
+    const urls = [
+      "https://esm.sh/@imgly/background-removal?bundle",
+      "https://cdn.jsdelivr.net/npm/@imgly/background-removal/+esm"
+    ];
+
+    let lastErr = null;
+    for(const url of urls){
+      try{
+        const mod = await import(url);
+        if(mod && mod.removeBackground){
+          state.bgRemovalLoaded = mod.removeBackground;
+          return state.bgRemovalLoaded;
+        }
+      }catch(err){
+        lastErr = err;
+      }
+    }
+    throw lastErr || new Error("背景移除引擎加载失败");
+  }
+
+  async function buildTrueStickerBlob(inputBlob, meta){
+    const bmp = await createImageBitmap(inputBlob);
+    const w = bmp.width;
+    const h = bmp.height;
+
+    const srcCanvas = document.createElement("canvas");
+    srcCanvas.width = w;
+    srcCanvas.height = h;
+    const sctx = srcCanvas.getContext("2d");
+    sctx.drawImage(bmp, 0, 0);
+
+    // Build alpha-based white outline from the actual transparent cutout
+    const border = 28;
+    const pad = border * 4;
+    const outCanvas = document.createElement("canvas");
+    outCanvas.width = w + pad * 2;
+    outCanvas.height = h + pad * 2;
+    const ctx = outCanvas.getContext("2d");
+
+    const maskCanvas = document.createElement("canvas");
+    maskCanvas.width = w;
+    maskCanvas.height = h;
+    const mctx = maskCanvas.getContext("2d");
+    mctx.drawImage(srcCanvas, 0, 0);
+    const imgData = mctx.getImageData(0, 0, w, h);
+    for(let i=0;i<imgData.data.length;i+=4){
+      const a = imgData.data[i+3];
+      imgData.data[i] = 255;
+      imgData.data[i+1] = 255;
+      imgData.data[i+2] = 255;
+      imgData.data[i+3] = a;
+    }
+    mctx.putImageData(imgData, 0, 0);
+
+    const ox = pad, oy = pad;
+
+    // Thick irregular white border following the actual alpha edge
+    for(let ang=0; ang<360; ang+=5){
+      const rad = ang * Math.PI / 180;
+      for(let r=4; r<=border; r+=4){
+        const dx = Math.round(Math.cos(rad) * r);
+        const dy = Math.round(Math.sin(rad) * r);
+        ctx.drawImage(maskCanvas, ox + dx, oy + dy);
+      }
+    }
+
+    // Template shadow / glow
+    ctx.save();
+    ctx.shadowColor = meta.shadow || "rgba(0,0,0,.15)";
+    ctx.shadowBlur = 18;
+    ctx.shadowOffsetY = 8;
+    ctx.drawImage(srcCanvas, ox, oy);
+    ctx.restore();
+
+    // Main transparent cutout
+    ctx.drawImage(srcCanvas, ox, oy);
+
+    // Template label under sticker
+    const text = meta.tagText || "物品";
+    ctx.font = "bold 26px sans-serif";
+    const textW = ctx.measureText(text).width;
+    const pillW = textW + 36;
+    const pillH = 42;
+    const pillX = Math.max(14, (outCanvas.width - pillW) / 2);
+    const pillY = Math.min(outCanvas.height - 52, oy + h + 8);
+
+    roundRect(ctx, pillX, pillY, pillW, pillH, 22, "#ffffff");
+    roundRectStroke(ctx, pillX, pillY, pillW, pillH, 22, meta.tagColor || "#22c55e", 4);
+
+    ctx.fillStyle = meta.tagColor || "#22c55e";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, pillX + 18, pillY + pillH / 2 + 1);
+
+    return await new Promise(resolve => outCanvas.toBlob(resolve, "image/png"));
+  }
+
+  function roundRect(ctx, x, y, w, h, r, fill){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath();
+    ctx.fillStyle = fill;
+    ctx.fill();
+  }
+
+  function roundRectStroke(ctx, x, y, w, h, r, color, lineWidth){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth;
+    ctx.stroke();
+  }
+
+  function saveCurrentStickerToBoard(){
+    if(!state.cutoutDataUrl){
+      alert("请先生成贴纸");
+      return;
+    }
+    const id = Date.now();
+    const item = {
+      id,
+      src: state.cutoutDataUrl,
+      x: 30 + (state.stickers.length % 4) * 24,
+      y: 30 + (state.stickers.length % 4) * 18,
+      scale: 1,
+      rotation: 0,
+      z: state.stickers.length,
+      meta: state.currentMeta || { templateLabel: "默认模板", tagText: "物品" }
+    };
+    state.stickers.push(item);
+    state.selectedId = id;
+    persist();
+    renderBoard();
+    renderGallery();
+    setStatus("✅ 已保存到沙盘与贴纸库。");
+  }
+
+  function persist(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.stickers));
+  }
+
+  function renderBoard(){
+    board.innerHTML = "";
+    if(!state.stickers.length){
+      board.classList.add("empty");
+      board.innerHTML = "上传并保存贴纸后会显示在这里<br>支持：拖动 / 双指缩放 / 旋转 / 图层排序 / 删除";
+      return;
+    }
+    board.classList.remove("empty");
+
+    const sorted = [...state.stickers].sort((a,b) => (a.z||0) - (b.z||0));
+    sorted.forEach(item => {
+      const img = document.createElement("img");
+      img.src = item.src;
+      img.className = "sticker" + (item.id === state.selectedId ? " selected" : "");
+      applyTransform(img, item);
+      attachGesture(img, item);
+      img.addEventListener("click", (e) => {
+        e.stopPropagation();
+        state.selectedId = item.id;
+        renderBoard();
+      });
+      board.appendChild(img);
+    });
+  }
+
+  board.addEventListener("click", () => {
+    state.selectedId = null;
+    renderBoard();
   });
-  const d=await r.json();
-  info.innerHTML="主体："+(d.subject||"物品")+" / "+(d.type||"object");
-  sticker=await makeSticker(source);
-  preview.src=sticker;
- }catch(e){
-  info.innerHTML="生成失败";
- }
-};
 
-$("save").onclick=()=>{
- if(!sticker)return;
- list.push({img:sticker,x:30+list.length*10,y:30+list.length*10,r:0});
- localStorage.setItem("aurora_stickers_v109",JSON.stringify(list));
- render();
-};
+  function applyTransform(el, item){
+    el.style.left = item.x + "px";
+    el.style.top = item.y + "px";
+    el.style.transform = `translate(-50%,-50%) scale(${item.scale}) rotate(${item.rotation}deg)`;
+    el.style.zIndex = item.z;
+  }
 
-function render(){
- board.innerHTML="";
- list.forEach((s,i)=>{
-  const img=document.createElement("img");
-  img.src=s.img;
-  img.className="sticker";
-  img.style.left=s.x+"px";
-  img.style.top=s.y+"px";
-  img.style.transform="rotate("+s.r+"deg)";
-  drag(img,s);
-  board.appendChild(img);
- });
-}
+  function attachGesture(el, item){
+    const pointers = new Map();
+    let start = null;
 
-function drag(el,obj){
- let sx,sy;
- el.ontouchstart=e=>{
-  let t=e.touches[0];
-  sx=t.clientX-obj.x; sy=t.clientY-obj.y;
-  el.ontouchmove=e=>{
-   let t=e.touches[0];
-   obj.x=t.clientX-sx;
-   obj.y=t.clientY-sy;
-   el.style.left=obj.x+"px";
-   el.style.top=obj.y+"px";
-  };
- };
-}
+    function onPointerDown(e){
+      e.preventDefault();
+      e.stopPropagation();
+      state.selectedId = item.id;
+      el.setPointerCapture && el.setPointerCapture(e.pointerId);
+      pointers.set(e.pointerId, { x:e.clientX, y:e.clientY });
+      if(pointers.size === 1){
+        start = {
+          mode: "drag",
+          x: item.x,
+          y: item.y,
+          px: e.clientX,
+          py: e.clientY
+        };
+      }else if(pointers.size === 2){
+        const pts = [...pointers.values()];
+        start = {
+          mode: "gesture",
+          x: item.x,
+          y: item.y,
+          scale: item.scale,
+          rotation: item.rotation,
+          dist: distance(pts[0], pts[1]),
+          angle: angleDeg(pts[0], pts[1]),
+          center: centerPt(pts[0], pts[1])
+        };
+      }
+      renderBoard();
+    }
 
-function makeSticker(src){
- return new Promise(resolve=>{
-  let i=new Image();
-  i.onload=()=>{
-   let c=document.createElement("canvas");
-   let b=100;
-   c.width=i.width+b*2;
-   c.height=i.height+b*2;
-   let x=c.getContext("2d");
-   x.shadowColor="#fff";
-   x.shadowBlur=100;
-   x.drawImage(i,b,b);
-   x.shadowBlur=0;
-   x.drawImage(i,b,b);
-   resolve(c.toDataURL("image/png"));
-  };
-  i.src=src;
- });
-}
+    function onPointerMove(e){
+      if(!pointers.has(e.pointerId)) return;
+      pointers.set(e.pointerId, { x:e.clientX, y:e.clientY });
 
-render();
+      if(!start) return;
+      if(pointers.size === 1 && start.mode === "drag"){
+        const p = [...pointers.values()][0];
+        item.x = start.x + (p.x - start.px);
+        item.y = start.y + (p.y - start.py);
+      }else if(pointers.size >= 2){
+        const pts = [...pointers.values()].slice(0,2);
+        const newDist = distance(pts[0], pts[1]);
+        const newAngle = angleDeg(pts[0], pts[1]);
+        item.scale = Math.max(0.35, Math.min(3.2, start.scale * (newDist / start.dist)));
+        item.rotation = start.rotation + (newAngle - start.angle);
+        const c = centerPt(pts[0], pts[1]);
+        item.x = start.x + (c.x - start.center.x);
+        item.y = start.y + (c.y - start.center.y);
+      }
+      applyTransform(el, item);
+    }
+
+    function onPointerUp(e){
+      pointers.delete(e.pointerId);
+      if(pointers.size === 0){
+        start = null;
+        persist();
+        renderGallery();
+      }else if(pointers.size === 1){
+        const p = [...pointers.values()][0];
+        start = {
+          mode: "drag",
+          x: item.x,
+          y: item.y,
+          px: p.x,
+          py: p.y
+        };
+      }
+    }
+
+    el.onpointerdown = onPointerDown;
+    el.onpointermove = onPointerMove;
+    el.onpointerup = onPointerUp;
+    el.onpointercancel = onPointerUp;
+    el.onlostpointercapture = onPointerUp;
+  }
+
+  function distance(a,b){
+    return Math.hypot(a.x-b.x, a.y-b.y);
+  }
+  function angleDeg(a,b){
+    return Math.atan2(b.y-a.y, b.x-a.x) * 180 / Math.PI;
+  }
+  function centerPt(a,b){
+    return { x:(a.x+b.x)/2, y:(a.y+b.y)/2 };
+  }
+
+  function reorderSelected(mode){
+    if(state.selectedId == null){
+      alert("请先选中一个贴纸");
+      return;
+    }
+    const arr = state.stickers;
+    const idx = arr.findIndex(x => x.id === state.selectedId);
+    if(idx < 0) return;
+
+    const sorted = [...arr].sort((a,b) => a.z - b.z);
+    const cur = sorted.findIndex(x => x.id === state.selectedId);
+    if(cur < 0) return;
+
+    if(mode === "front" && cur < sorted.length-1){
+      const item = sorted.splice(cur,1)[0];
+      sorted.push(item);
+    }else if(mode === "back" && cur > 0){
+      const item = sorted.splice(cur,1)[0];
+      sorted.unshift(item);
+    }else if(mode === "up" && cur < sorted.length-1){
+      [sorted[cur], sorted[cur+1]] = [sorted[cur+1], sorted[cur]];
+    }else if(mode === "down" && cur > 0){
+      [sorted[cur], sorted[cur-1]] = [sorted[cur-1], sorted[cur]];
+    }
+
+    sorted.forEach((item, i) => item.z = i);
+    state.stickers = sorted;
+    persist();
+    renderBoard();
+    renderGallery();
+  }
+
+  function deleteSelected(){
+    if(state.selectedId == null){
+      alert("请先选中一个贴纸");
+      return;
+    }
+    state.stickers = state.stickers.filter(x => x.id !== state.selectedId);
+    state.selectedId = null;
+    persist();
+    renderBoard();
+    renderGallery();
+  }
+
+  function clearAll(){
+    if(!state.stickers.length) return;
+    if(confirm("确定清空全部贴纸吗？")){
+      state.stickers = [];
+      state.selectedId = null;
+      persist();
+      renderBoard();
+      renderGallery();
+    }
+  }
+
+  function renderGallery(){
+    if(!state.stickers.length){
+      gallery.innerHTML = "暂无贴纸";
+      return;
+    }
+    const sorted = [...state.stickers].sort((a,b) => (b.z||0)-(a.z||0));
+    gallery.innerHTML = sorted.map(item => `
+      <div class="thumb">
+        <img src="${item.src}" alt="">
+        <div class="cap">${item.meta?.templateLabel || "默认模板"}<br>缩放 ${item.scale.toFixed(2)} · 旋转 ${Math.round(item.rotation)}°</div>
+      </div>
+    `).join("");
+  }
+
+  async function shareBoardImage(){
+    if(!state.stickers.length){
+      alert("沙盘还没有贴纸");
+      return;
+    }
+    try{
+      const blob = await exportBoardToBlob();
+      const file = new File([blob], "auroramap-board.png", { type: "image/png" });
+
+      if(navigator.canShare && navigator.canShare({ files:[file] })){
+        await navigator.share({
+          title: "AuroraMap 沙盘贴纸",
+          text: "这是我制作的 AuroraMap 贴纸沙盘",
+          files: [file]
+        });
+      }else{
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "auroramap-board.png";
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+    }catch(err){
+      alert("分享失败：" + (err.message || err));
+    }
+  }
+
+  async function exportBoardToBlob(){
+    const rect = board.getBoundingClientRect();
+    const canvas = document.createElement("canvas");
+    canvas.width = rect.width * 2;
+    canvas.height = rect.height * 2;
+    const ctx = canvas.getContext("2d");
+    ctx.scale(2,2);
+
+    // background
+    const grad = ctx.createLinearGradient(0,0,0,rect.height);
+    grad.addColorStop(0, "#f6e2af");
+    grad.addColorStop(1, "#deb572");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,rect.width,rect.height);
+
+    // dot texture
+    ctx.fillStyle = "rgba(255,255,255,.28)";
+    for(let y=16;y<rect.height;y+=34){
+      for(let x=16;x<rect.width;x+=34){
+        ctx.beginPath();
+        ctx.arc(x,y,2,0,Math.PI*2);
+        ctx.fill();
+      }
+    }
+
+    const sorted = [...state.stickers].sort((a,b) => (a.z||0)-(b.z||0));
+    for(const item of sorted){
+      const img = await loadImage(item.src);
+      ctx.save();
+      ctx.translate(item.x, item.y);
+      ctx.rotate(item.rotation * Math.PI / 180);
+      ctx.scale(item.scale, item.scale);
+      const width = 140;
+      const height = img.height / img.width * width;
+      ctx.filter = "drop-shadow(0 12px 14px rgba(0,0,0,.18))";
+      ctx.drawImage(img, -width/2, -height/2, width, height);
+      ctx.restore();
+    }
+
+    return await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+  }
+
+  function fileToDataURL(file){
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function blobToDataURL(blob){
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  function dataUrlToBlob(dataUrl){
+    const arr = dataUrl.split(",");
+    const mime = arr[0].match(/:(.*?);/)[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while(n--){
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], { type: mime });
+  }
+
+  function loadImage(src){
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
+  }
+
+  renderBoard();
+  renderGallery();
+})();
 </script>
 </body>
 </html>
