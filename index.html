@@ -5,38 +5,150 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport"
-content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
-
-<title>
-AI旅行汇率助手
-</title>
+<title>AI旅行汇率助手</title>
 
 
 <style>
+
+*{
+box-sizing:border-box;
+}
+
 
 body{
 
 margin:0;
 
-background:#f3f6fb;
+min-height:100vh;
+
+background:
+linear-gradient(
+135deg,
+#dbeafe,
+#f5f3ff
+);
 
 font-family:
-Arial,
+-apple-system,
+BlinkMacSystemFont,
 "Microsoft YaHei";
 
 }
 
 
-
 .app{
 
-max-width:420px;
+max-width:430px;
 
 margin:auto;
 
-padding:20px;
+padding:25px;
+
+}
+
+
+
+.logo{
+
+font-size:30px;
+
+font-weight:700;
+
+margin-bottom:20px;
+
+}
+
+
+
+.glass{
+
+background:
+rgba(255,255,255,.65);
+
+backdrop-filter:
+blur(20px);
+
+border-radius:30px;
+
+padding:25px;
+
+margin-bottom:20px;
+
+box-shadow:
+0 20px 50px rgba(0,0,0,.1);
+
+}
+
+
+
+.upload{
+
+height:220px;
+
+border-radius:25px;
+
+border:2px dashed #93c5fd;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+overflow:hidden;
+
+background:#fff;
+
+}
+
+
+
+.upload img{
+
+width:100%;
+
+height:100%;
+
+object-fit:cover;
+
+}
+
+
+
+input{
+
+display:none;
+
+}
+
+
+
+.bigbtn{
+
+width:100%;
+
+height:55px;
+
+border:none;
+
+border-radius:30px;
+
+margin-top:20px;
+
+background:
+linear-gradient(
+135deg,
+#2563eb,
+#4f46e5
+);
+
+color:white;
+
+font-size:18px;
+
+font-weight:bold;
 
 }
 
@@ -46,78 +158,11 @@ padding:20px;
 
 background:white;
 
-padding:20px;
-
 border-radius:25px;
 
-margin-bottom:20px;
-
-box-shadow:
-0 10px 30px #0002;
-
-}
-
-
-
-h1{
-
-font-size:26px;
-
-}
-
-
-
-input,
-button{
-
-
-width:100%;
-
-padding:15px;
-
-border-radius:15px;
-
-margin-top:15px;
-
-font-size:16px;
-
-}
-
-
-
-button{
-
-background:#2563eb;
-
-color:white;
-
-border:0;
-
-}
-
-
-
-img{
-
-width:100%;
-
-border-radius:20px;
-
-margin-top:15px;
-
-}
-
-
-
-.result{
-
-background:#eef6ff;
-
 padding:20px;
 
-border-radius:20px;
-
-line-height:1.8;
+margin-top:15px;
 
 }
 
@@ -125,7 +170,51 @@ line-height:1.8;
 
 .flag{
 
-font-size:40px;
+font-size:50px;
+
+}
+
+
+
+.price{
+
+font-size:30px;
+
+font-weight:bold;
+
+color:#2563eb;
+
+}
+
+
+
+.rmb{
+
+font-size:34px;
+
+font-weight:bold;
+
+color:#16a34a;
+
+}
+
+
+
+.loading{
+
+text-align:center;
+
+color:#2563eb;
+
+}
+
+
+
+.small{
+
+color:#64748b;
+
+font-size:14px;
 
 }
 
@@ -142,12 +231,24 @@ font-size:40px;
 <div class="app">
 
 
-<h1>
+<div class="logo">
+
 🌍 AI旅行汇率助手
-</h1>
+
+</div>
 
 
-<div class="card">
+
+<div class="glass">
+
+
+<label class="upload">
+
+
+<img id="preview">
+
+
+</label>
 
 
 <input
@@ -162,83 +263,127 @@ capture="environment">
 
 
 
-<img id="preview">
+<button
 
+class="bigbtn"
 
+onclick="runAI()">
 
-<button onclick="runAI()">
-
-📷 识别价格
+📷 AI智能识别价格
 
 </button>
 
 
-</div>
-
-
-
-<div class="card">
-
-
-<div id="result"
-class="result">
-
-等待图片...
 
 </div>
 
 
 
-<button onclick="voice()">
+
+<div class="glass">
+
+
+<div id="result">
+
+<div class="small">
+
+等待拍摄商品、小票或菜单
+
+</div>
+
+</div>
+
+
+
+<button
+
+class="bigbtn"
+
+onclick="speak()">
 
 🔊 播报结果
 
 </button>
 
 
+
 </div>
 
 
+
 </div>
+
+
 
 
 
 <script>
 
 
-let img64="";
+let imageBase64="";
 
-let speakText="";
-
-
-
-file.onchange=e=>{
+let speech="";
 
 
-let f=e.target.files[0];
+
+const fileInput=
+document.getElementById("file");
+
+const preview=
+document.getElementById("preview");
+
+const result=
+document.getElementById("result");
+
+
+
+/*
+
+上传图片
+
+*/
+
+fileInput.onclick=function(){
+
+}
+
+
+
+fileInput.onchange=function(e){
+
+
+let file=e.target.files[0];
+
+
+if(!file)return;
+
 
 
 let reader=new FileReader();
 
 
 
-reader.onload=x=>{
-
+reader.onload=function(){
 
 let img=new Image();
 
 
-img.onload=()=>{
+img.onload=function(){
 
 
-let canvas=document.createElement("canvas");
+let canvas=
+document.createElement("canvas");
+
+
+let max=1000;
 
 
 let scale=
-900/img.width;
+max/img.width;
 
 
-canvas.width=900;
+canvas.width=max;
+
 
 canvas.height=
 img.height*scale;
@@ -247,6 +392,7 @@ img.height*scale;
 
 let ctx=
 canvas.getContext("2d");
+
 
 ctx.drawImage(
 img,
@@ -258,29 +404,27 @@ canvas.height
 
 
 
-img64=
+imageBase64=
 canvas.toDataURL(
 "image/jpeg",
-0.65
+0.7
 );
 
 
 
-preview.src=img64;
+preview.src=imageBase64;
 
 
 }
 
 
-
-img.src=x.target.result;
+img.src=reader.result;
 
 
 }
 
 
-
-reader.readAsDataURL(f);
+reader.readAsDataURL(file);
 
 
 }
@@ -291,17 +435,46 @@ reader.readAsDataURL(f);
 async function runAI(){
 
 
+if(!imageBase64){
+
+alert("请先拍照");
+
+return;
+
+}
+
+
+
 result.innerHTML=
-"🤖 AI识别中...";
+
+`
+
+<div class="loading">
+
+🤖 AI正在识别...
+
+<br>
+
+请等待
+
+</div>
+
+`;
 
 
 
-let r=
+try{
+
+
+let res=
+
 await fetch(
 "/api/vision",
 {
 
+
 method:"POST",
+
 
 headers:{
 
@@ -310,35 +483,44 @@ headers:{
 
 },
 
+
 body:JSON.stringify({
 
-image:img64
+image:imageBase64
 
 })
 
-}
 
-);
+});
 
 
 
 let data=
-await r.json();
+await res.json();
+
+
+
+if(data.error){
+
+throw new Error(data.error);
+
+}
 
 
 
 let flag="🌍";
 
 
-let map={
+
+const flags={
 
 China:"🇨🇳",
 
 Japan:"🇯🇵",
 
-United States:"🇺🇸",
-
 USA:"🇺🇸",
+
+"United States":"🇺🇸",
 
 Korea:"🇰🇷",
 
@@ -349,13 +531,14 @@ Germany:"🇩🇪"
 };
 
 
-if(map[data.country])
 
-flag=map[data.country];
+if(flags[data.country])
+
+flag=flags[data.country];
 
 
 
-speakText=
+speech=
 
 `${data.amount}${data.currency}，约${data.cny}人民币`;
 
@@ -365,38 +548,56 @@ result.innerHTML=
 
 `
 
+<div class="card">
+
 <div class="flag">
+
 ${flag}
+
 </div>
 
 
-国家：
+<h3>
 
-${data.country || ""}
+${data.country || "未知国家"}
+
+</h3>
 
 
-<br>
+<div>
 
 货币：
 
-${data.currency || ""}
+${data.currency}
+
+</div>
 
 
-<br>
+<div class="price">
 
-价格：
+${data.symbol || ""}${data.amount}
 
-${data.symbol || ""}${data.amount || ""}
+</div>
 
 
 <hr>
 
 
-人民币：
+<div>
 
-<b>
-¥${data.cny || "计算失败"}
-</b>
+人民币
+
+</div>
+
+
+<div class="rmb">
+
+¥${data.cny || "--"}
+
+</div>
+
+
+</div>
 
 `;
 
@@ -404,15 +605,43 @@ ${data.symbol || ""}${data.amount || ""}
 
 }
 
+catch(e){
+
+
+result.innerHTML=
+
+`
+
+❌ 识别失败
+
+<br><br>
+
+${e.message}
+
+`;
+
+}
+
+
+}
 
 
 
-function voice(){
+function speak(){
+
+
+if(!speech){
+
+alert("暂无结果");
+
+return;
+
+}
 
 
 let u=
 new SpeechSynthesisUtterance(
-speakText
+speech
 );
 
 
@@ -423,7 +652,6 @@ speechSynthesis.speak(u);
 
 
 }
-
 
 
 </script>
