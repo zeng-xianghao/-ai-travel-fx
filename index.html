@@ -7,9 +7,7 @@
 
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>
-AI Travel FX V10
-</title>
+<title>AuroraMap AI</title>
 
 
 <style>
@@ -24,11 +22,10 @@ body{
 margin:0;
 
 background:
-linear-gradient(135deg,#dbeafe,#ede9fe);
+linear-gradient(135deg,#dbeafe,#f5f3ff);
 
 font-family:
--apple-system,
-BlinkMacSystemFont,
+Arial,
 "Microsoft YaHei";
 
 }
@@ -41,45 +38,25 @@ max-width:430px;
 
 margin:auto;
 
-min-height:100vh;
-
-padding-bottom:90px;
-
-}
-
-
-
-.header{
-
-padding:25px;
-
-font-size:28px;
-
-font-weight:900;
-
-}
-
-
-
-.page{
-
-display:none;
-
 padding:20px;
 
 }
 
 
 
-.page.active{
+.logo{
 
-display:block;
+font-size:30px;
+
+font-weight:900;
+
+margin-bottom:20px;
 
 }
 
 
 
-.glass{
+.card{
 
 background:
 rgba(255,255,255,.75);
@@ -90,28 +67,51 @@ border-radius:28px;
 
 padding:20px;
 
-margin-bottom:18px;
+margin-bottom:20px;
 
-box-shadow:
-0 15px 40px #0002;
-
-}
-
-
-
-.big{
-
-font-size:32px;
-
-font-weight:900;
+box-shadow:0 15px 40px #0002;
 
 }
 
 
 
-.flag{
+.preview{
 
-font-size:55px;
+height:260px;
+
+border-radius:25px;
+
+border:2px dashed #60a5fa;
+
+overflow:hidden;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+background:white;
+
+}
+
+
+
+.preview img{
+
+width:100%;
+
+height:100%;
+
+object-fit:cover;
+
+}
+
+
+
+input{
+
+display:none;
 
 }
 
@@ -127,16 +127,14 @@ border:0;
 
 border-radius:30px;
 
+margin-top:15px;
+
 background:
-linear-gradient(
-135deg,
-#2563eb,
-#4f46e5
-);
+linear-gradient(135deg,#2563eb,#7c3aed);
 
 color:white;
 
-font-size:17px;
+font-size:18px;
 
 font-weight:bold;
 
@@ -144,91 +142,13 @@ font-weight:bold;
 
 
 
-.photo{
+.status{
 
-height:230px;
+padding:15px;
 
-border-radius:25px;
+border-radius:20px;
 
-border:2px dashed #60a5fa;
-
-display:flex;
-
-align-items:center;
-
-justify-content:center;
-
-overflow:hidden;
-
-background:white;
-
-}
-
-
-
-.photo img{
-
-width:100%;
-
-height:100%;
-
-object-fit:cover;
-
-}
-
-
-
-input[type=file]{
-
-display:none;
-
-}
-
-
-
-.bottom{
-
-position:fixed;
-
-bottom:0;
-
-left:0;
-
-right:0;
-
-height:75px;
-
-background:white;
-
-display:flex;
-
-justify-content:space-around;
-
-align-items:center;
-
-box-shadow:0 -5px 20px #0002;
-
-}
-
-
-
-.tab{
-
-font-size:12px;
-
-text-align:center;
-
-color:#64748b;
-
-}
-
-
-
-.tab span{
-
-display:block;
-
-font-size:25px;
+background:#eff6ff;
 
 }
 
@@ -236,7 +156,7 @@ font-size:25px;
 
 .money{
 
-font-size:34px;
+font-size:35px;
 
 font-weight:900;
 
@@ -245,24 +165,11 @@ color:#16a34a;
 }
 
 
-
-.item{
-
-background:#f8fafc;
-
-padding:15px;
-
-border-radius:18px;
-
-margin-top:10px;
-
-}
-
-
-
 </style>
 
+
 </head>
+
 
 
 <body>
@@ -271,125 +178,33 @@ margin-top:10px;
 <div class="app">
 
 
-<div class="header">
+<div class="logo">
 
-🌍 AI Travel FX
-
-</div>
-
-
-
-<!-- 首页 -->
-
-<div id="home" class="page active">
-
-
-<div class="glass">
-
-
-<div class="big">
-
-📍 当前地区
-
-</div>
-
-
-<div id="location">
-
-定位中...
-
-</div>
-
-
-</div>
-
-
-
-<div class="glass">
-
-
-<h2>
-
-💱 默认货币
-
-</h2>
-
-
-<div id="currencyBox">
-
-自动检测
-
-</div>
-
-
-</div>
-
-
-
-<div class="glass">
-
-
-<h2>
-
-✨ 功能
-
-</h2>
-
-
-<p>
-📷 AI价格识别
-</p>
-
-
-<p>
-🧾 小票分析
-</p>
-
-
-<p>
-🗺旅行记录
-</p>
-
-
-<p>
-💎 Pro会员
-</p>
-
-
-</div>
-
-
+🌌 AuroraMap
 
 </div>
 
 
 
 
-
-<!-- 拍照 -->
-
-<div id="camera" class="page">
+<div class="card">
 
 
-<div class="glass">
-
-
-<label class="photo"
+<label class="preview"
 for="file">
 
 
-<img id="preview">
+<img id="img">
 
 
-<div id="empty">
+<span id="tip">
 
-📷 拍照识别
+📷 拍摄价格 / 小票
 
-</div>
+</span>
 
 
 </label>
-
 
 
 <input
@@ -415,69 +230,22 @@ capture="environment">
 
 
 
-<div class="glass">
+
+
+<div class="card">
+
+
+<div id="status"
+class="status">
+
+等待图片
+
+</div>
+
 
 
 <div id="result">
 
-等待识别
-
-</div>
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-<!-- 小票 -->
-
-<div id="receipt" class="page">
-
-
-<div class="glass">
-
-
-<h2>
-
-🧾 小票模式
-
-</h2>
-
-
-<p>
-
-上传小票，AI自动识别：
-
-</p>
-
-
-<p>
-
-商品名称
-
-<br>
-
-价格
-
-<br>
-
-总金额
-
-</p>
-
-
-<button>
-
-开始扫描
-
-</button>
-
-
 </div>
 
 
@@ -485,349 +253,202 @@ capture="environment">
 
 
 
-
-
-<!-- 地图 -->
-
-<div id="map" class="page">
-
-
-<div class="glass">
-
-
-<h2>
-
-🗺旅行记录地图
-
-</h2>
-
-
-<div id="history">
-
-暂无记录
-
 </div>
 
 
-</div>
-
-
-</div>
-
-
-
-
-
-<!-- 我的 -->
-
-<div id="user" class="page">
-
-
-<div class="glass">
-
-
-<h2>
-
-👤 我的
-
-</h2>
-
-
-<p>
-
-游客账户
-
-</p>
-
-
-<button>
-
-登录 / 注册
-
-</button>
-
-
-</div>
-
-
-
-<div class="glass">
-
-
-<h2>
-
-💎 Pro会员
-
-</h2>
-
-
-<p>
-
-无限AI识别
-
-</p>
-
-
-<p>
-
-小票模式
-
-</p>
-
-
-<p>
-
-旅行地图
-
-</p>
-
-
-<button>
-
-升级 Pro
-
-</button>
-
-
-</div>
-
-
-</div>
-
-
-
-
-<div class="bottom">
-
-
-<div class="tab"
-onclick="show('home')">
-
-<span>🏠</span>
-首页
-
-</div>
-
-
-<div class="tab"
-onclick="show('camera')">
-
-<span>📷</span>
-拍照
-
-</div>
-
-
-<div class="tab"
-onclick="show('receipt')">
-
-<span>🧾</span>
-小票
-
-</div>
-
-
-<div class="tab"
-onclick="show('map')">
-
-<span>🗺</span>
-旅行
-
-</div>
-
-
-<div class="tab"
-onclick="show('user')">
-
-<span>👤</span>
-我的
-
-</div>
-
-
-</div>
-
-
-</div>
 
 
 
 <script>
 
 
-function show(id){
+let imageBase64="";
 
 
-document
-.querySelectorAll(".page")
-.forEach(
-x=>x.classList.remove("active")
-);
 
+const file=
+document.getElementById("file");
 
-document
-.getElementById(id)
-.classList.add("active");
 
+const img=
+document.getElementById("img");
 
-}
 
+const tip=
+document.getElementById("tip");
 
 
+const status=
+document.getElementById("status");
 
-// 180+国家旗帜生成
 
-function flag(code){
+const result=
+document.getElementById("result");
 
-return code
-.toUpperCase()
-.replace(
-/./g,
-c=>
-String.fromCodePoint(
-127397+c.charCodeAt()
-)
-);
 
-}
 
 
 
+// 图片压缩
 
 
-// GPS定位
+file.onchange=function(e){
 
 
-navigator.geolocation.getCurrentPosition(
 
-async pos=>{
+let f=e.target.files[0];
 
 
-let lat=
-pos.coords.latitude;
+if(!f)return;
 
-
-let lon=
-pos.coords.longitude;
-
-
-
-location.innerHTML=
-
-`
-纬度:
-${lat.toFixed(2)}
-<br>
-经度:
-${lon.toFixed(2)}
-`;
-
-
-// 简化国家判断
-
-if(
-lat>20 &&
-lat<50 &&
-lon>70 &&
-lon<140
-){
-
-currencyBox.innerHTML=
-
-"🇨🇳 中国 CNY";
-
-}
-
-
-else if(
-
-lon<-50
-
-){
-
-currencyBox.innerHTML=
-
-"🇺🇸 美国 USD";
-
-}
-
-
-else{
-
-
-currencyBox.innerHTML=
-
-"🌍 自动模式";
-
-}
-
-
-},
-
-
-()=>{
-
-
-location.innerHTML=
-
-"未授权定位";
-
-
-}
-
-);
-
-
-
-
-
-// 图片上传
-
-
-let img64="";
-
-
-file.onchange=e=>{
 
 
 let reader=
 new FileReader();
 
 
-reader.onload=x=>{
+
+reader.onload=function(e){
 
 
-preview.src=x.target.result;
 
-img64=x.target.result;
-
-
-empty.style.display="none";
+let image=new Image();
 
 
-};
+
+image.onload=function(){
 
 
-reader.readAsDataURL(
-e.target.files[0]
+
+let canvas=
+document.createElement("canvas");
+
+
+let max=700;
+
+
+
+let scale=max/image.width;
+
+
+
+canvas.width=max;
+
+
+canvas.height=
+image.height*scale;
+
+
+
+let ctx=
+canvas.getContext("2d");
+
+
+
+ctx.drawImage(
+
+image,
+
+0,
+
+0,
+
+canvas.width,
+
+canvas.height
+
 );
 
 
+
+imageBase64=
+canvas.toDataURL(
+"image/jpeg",
+0.45
+);
+
+
+
+img.src=imageBase64;
+
+
+tip.style.display="none";
+
+
+
+}
+
+
+
+image.src=e.target.result;
+
+
+}
+
+
+
+reader.readAsDataURL(f);
+
+
+
 };
 
 
 
 
 
-// AI识别
+// 图片复杂度判断
 
 
-scan.onclick=async()=>{
+function detectMode(){
 
 
-if(!img64){
 
-alert("请上传图片");
+/*
+
+简单规则：
+
+图片尺寸小
+文字少
+
+走快速模型
+
+
+*/
+
+
+let length=
+imageBase64.length;
+
+
+
+if(length<300000){
+
+return "fast";
+
+}
+
+
+
+return "deep";
+
+
+}
+
+
+
+
+
+
+document
+.getElementById("scan")
+.onclick=
+async()=>{
+
+
+if(!imageBase64){
+
+alert("请先拍照");
 
 return;
 
@@ -835,16 +456,45 @@ return;
 
 
 
-result.innerHTML=
-
-"🤖 AI分析中...";
-
+let mode=
+detectMode();
 
 
-let r=
+
+if(mode==="fast"){
+
+
+status.innerHTML=
+
+"⚡ 快速模式<br>正在使用 gpt-6-sol";
+
+
+}else{
+
+
+status.innerHTML=
+
+"🧠 深度模式<br>正在使用 gpt-6-luna";
+
+
+}
+
+
+
+
+
+result.innerHTML="";
+
+
+
+try{
+
+
+let response=
 await fetch(
 "/api/vision",
 {
+
 
 method:"POST",
 
@@ -855,17 +505,31 @@ headers:{
 
 },
 
+
 body:JSON.stringify({
 
-image:img64
+image:imageBase64,
+
+mode:mode
 
 })
+
 
 });
 
 
+
 let data=
-await r.json();
+await response.json();
+
+
+
+if(data.error){
+
+throw Error(data.error);
+
+}
+
 
 
 
@@ -873,38 +537,38 @@ result.innerHTML=
 
 `
 
-<div class="flag">
+<h2>
 
-🌍
+${data.country||"未知国家"}
 
-</div>
+</h2>
 
 
-国家：
-
-${data.country}
-
-<br>
+<p>
 
 货币：
 
 ${data.currency}
 
-<br>
+</p>
 
-金额：
+
+<h2>
 
 ${data.symbol||""}${data.amount}
 
+</h2>
 
-<br><br>
+
+
+<hr>
 
 
 人民币：
 
 <div class="money">
 
-¥${data.cny||"-"}
+¥${data.cny||"--"}
 
 </div>
 
@@ -912,77 +576,27 @@ ${data.symbol||""}${data.amount}
 
 
 
-let list=
-JSON.parse(
-localStorage.history||"[]"
-);
+status.innerHTML=
+
+"✅ 识别完成";
 
 
-list.unshift(data);
+
+}
+
+catch(e){
 
 
-localStorage.history=
-JSON.stringify(
-list.slice(0,20)
-);
+status.innerHTML=
+
+"❌ "+e.message;
 
 
-loadHistory();
+}
+
 
 
 };
-
-
-
-
-
-function loadHistory(){
-
-
-let h=
-document.getElementById("history");
-
-
-let list=
-JSON.parse(
-localStorage.history||"[]"
-);
-
-
-
-if(!list.length){
-
-return;
-
-}
-
-
-h.innerHTML=
-list.map(x=>
-
-`
-<div class="item">
-
-🌍 ${x.country}
-
-<br>
-
-${x.amount} ${x.currency}
-
-<br>
-
-¥${x.cny||"-"}
-
-</div>
-
-`
-
-).join("");
-
-}
-
-
-loadHistory();
 
 
 
@@ -990,5 +604,6 @@ loadHistory();
 
 
 </body>
+
 
 </html>
