@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
-  <title>AuroraMap AI Sticker Studio V11.5</title>
+  <title>AuroraMap AI Sticker Studio V11.6</title>
   <style>
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body {
@@ -107,26 +107,28 @@
 
     .board-wrap {
       position: relative;
-      background: linear-gradient(180deg, #fff7e8, #efd09b);
-      border-radius: 30px;
-      padding: 10px;
-      box-shadow:
-        inset 0 0 0 10px rgba(255,255,255,.16),
-        inset 0 0 28px rgba(141,96,36,.18),
-        0 12px 32px rgba(91,53,10,.14);
+      width: 100%;
+      background: transparent;
+      border-radius: 0;
+      padding: 0;
+      box-shadow: none;
     }
 
     .board {
-      height: 500px;
+      height: clamp(520px, 72vh, 760px);
+      min-height: 520px;
+      width: 100%;
       border-radius: 24px;
       position: relative;
       overflow: hidden;
       background:
-        radial-gradient(circle at 16px 16px, rgba(255,255,255,.28) 0 2px, transparent 3px) 0 0/34px 34px,
-        linear-gradient(180deg, #f6e2af, #deb572);
-      touch-action: none;
+        radial-gradient(circle at 16px 16px, rgba(255,255,255,.24) 0 2px, transparent 3px) 0 0/34px 34px,
+        linear-gradient(180deg, #f6e2af 0%, #e9c985 48%, #d9aa62 100%);
+      box-shadow: inset 0 0 34px rgba(117,74,24,.18), 0 12px 32px rgba(91,53,10,.12);
+      touch-action: pan-y;
       user-select: none;
       -webkit-user-select: none;
+      -webkit-touch-callout: none;
     }
 
     .board.empty {
@@ -146,8 +148,11 @@
       touch-action: none;
       user-select: none;
       -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      cursor: grab;
       will-change: transform, left, top;
     }
+    .sticker-wrap.dragging { cursor: grabbing; }
 
     .sticker {
       display: block;
@@ -167,28 +172,30 @@
     .context-menu {
       position: absolute;
       left: 50%;
-      bottom: 14px;
-      transform: translateX(-50%);
+      bottom: max(14px, env(safe-area-inset-bottom));
+      transform: translateX(-50%) translateY(8px);
       display: none;
-      gap: 8px;
-      padding: 8px;
-      background: rgba(17,24,39,.88);
+      grid-template-columns: repeat(3, max-content);
+      gap: 7px;
+      padding: 9px;
+      background: rgba(17,24,39,.92);
+      border: 1px solid rgba(255,255,255,.12);
       border-radius: 20px;
-      backdrop-filter: blur(14px);
-      box-shadow: 0 10px 24px rgba(0,0,0,.22);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 12px 30px rgba(0,0,0,.28);
       z-index: 99999;
       max-width: calc(100% - 20px);
       overflow-x: auto;
+      overscroll-behavior: contain;
       white-space: nowrap;
     }
-    .context-menu.show { display: flex; }
+    .context-menu.show { display: grid; transform: translateX(-50%) translateY(0); }
 
     .menu-btn {
-      flex: 0 0 auto;
-      min-width: 0;
+      min-width: 82px;
       width: auto;
       height: 38px;
-      padding: 0 14px;
+      padding: 0 12px;
       border-radius: 999px;
       border: 0;
       background: rgba(255,255,255,.14);
@@ -251,10 +258,25 @@
     .small-btn.use { background: #eef2ff; color: #3730a3; }
     .small-btn.del { background: #111827; color: #fff; }
 
+    @media (max-width: 640px) {
+      .board-card {
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        margin-right: calc(50% - 50vw);
+      }
+      .board-title { padding-left: 16px; padding-right: 16px; }
+      .board {
+        height: min(74vh, 720px);
+        min-height: 520px;
+        border-radius: 0;
+      }
+      .context-menu { max-width: calc(100% - 16px); }
+    }
+
     @media (max-width: 380px) {
       .row, .row3 { grid-template-columns: 1fr; }
       .gallery { grid-template-columns: 1fr 1fr; }
-      .board { height: 460px; }
+      .context-menu { grid-template-columns: repeat(2, max-content); }
     }
   </style>
 </head>
@@ -262,7 +284,7 @@
 <div class="app">
   <div class="hero">
     <h1>🌌 AuroraMap</h1>
-    <p>AI Sticker Studio V11.5 · 手机端本地上传 + 拍照上传 · 双击贴纸弹出操作菜单</p>
+    <p>AI Sticker Studio V11.6 · 手机端本地上传 + 拍照上传 · 双击贴纸弹出操作菜单</p>
   </div>
 
   <div class="card">
@@ -300,16 +322,16 @@
     <div class="board-title">🏖 贴纸沙盘</div>
     <div class="board-wrap">
       <div id="board" class="board empty">上传并生成贴纸后会自动进入贴纸库<br>点击“加入沙盘”或贴纸库中的“加入沙盘”即可使用</div>
-      <div id="contextMenu" class="context-menu">
+      <div id="contextMenu" class="context-menu" aria-hidden="true">
         <button class="menu-btn" data-action="front">置顶</button>
+        <button class="menu-btn" data-action="back">置底</button>
         <button class="menu-btn" data-action="up">上移一层</button>
         <button class="menu-btn" data-action="down">下移一层</button>
-        <button class="menu-btn" data-action="back">置底</button>
         <button class="menu-btn delete" data-action="delete">删除选中</button>
         <button class="menu-btn clear" data-action="clear">清空</button>
       </div>
     </div>
-    <div class="mini">操作方式：长按贴纸约 220ms 可拖动；双指缩放 / 旋转；双击贴纸后显示操作菜单。</div>
+    <div class="mini">操作方式：按住贴纸约 220ms 后直接拖动；双指缩放 / 旋转；双击（手机双击）贴纸后显示图层 / 删除 / 清空菜单。</div>
   </div>
 
   <div class="card">
@@ -323,6 +345,8 @@
   const BOARD_KEY = "auroramap_board_v115";
   const LIBRARY_KEY = "auroramap_library_v115";
   const LONG_PRESS_MS = 220;
+  const LONG_PRESS_SLOP = 28;
+  const DOUBLE_TAP_MS = 330;
   const BASE_WIDTH = 132;
   const $ = function(id){ return document.getElementById(id); };
 
@@ -565,11 +589,13 @@
   }
 
   function addSrcToBoard(src, subject, type){
+    var rect = board.getBoundingClientRect();
+    var offset = (state.boardItems.length % 5) * 16;
     var item = {
       id: Date.now() + Math.floor(Math.random() * 1000),
       src: src,
-      x: 100 + (state.boardItems.length % 5) * 18,
-      y: 90 + (state.boardItems.length % 5) * 18,
+      x: Math.max(70, (rect.width || 360) / 2 + offset - 32),
+      y: Math.max(90, Math.min((rect.height || 520) * 0.34 + offset, (rect.height || 520) - 90)),
       scale: 1,
       rotation: 0,
       z: state.boardItems.length,
@@ -588,8 +614,15 @@
     renderGallery();
   }
 
-  function showMenu(){ contextMenu.classList.add("show"); }
-  function hideMenu(){ contextMenu.classList.remove("show"); }
+  function showMenu(){
+    if(state.selectedBoardId == null) return;
+    contextMenu.classList.add("show");
+    contextMenu.setAttribute("aria-hidden", "false");
+  }
+  function hideMenu(){
+    contextMenu.classList.remove("show");
+    contextMenu.setAttribute("aria-hidden", "true");
+  }
 
   function renderBoard(){
     board.innerHTML = "";
@@ -644,17 +677,20 @@
   }
 
   function attachGesture(el, item){
+    var pointers = new Map();
     var pressTimer = null;
     var dragging = false;
     var moved = false;
     var gesture = null;
+    var primaryPointerId = null;
     var startX = 0, startY = 0, startItemX = 0, startItemY = 0;
     var lastTapTime = 0;
     var rafToken = 0;
     var moveCache = null;
 
     function scheduleMove(x, y, scale, rotation){
-      moveCache = { x: x, y: y, scale: scale, rotation: rotation };
+      var clamped = clampItemPosition(x, y, scale);
+      moveCache = { x: clamped.x, y: clamped.y, scale: scale, rotation: rotation };
       if(rafToken) return;
       rafToken = requestAnimationFrame(function(){
         rafToken = 0;
@@ -675,145 +711,174 @@
       }
     }
 
-    function beginSingle(clientX, clientY){
-      startX = clientX;
-      startY = clientY;
+    function beginLongPress(pointer){
+      primaryPointerId = pointer.pointerId;
+      startX = pointer.clientX;
+      startY = pointer.clientY;
       startItemX = item.x;
       startItemY = item.y;
       dragging = false;
       moved = false;
       clearPress();
       pressTimer = setTimeout(function(){
+        if(!pointers.has(primaryPointerId) || pointers.size !== 1) return;
         dragging = true;
         state.draggingNow = true;
-        document.body.style.overflow = "hidden";
+        el.classList.add("dragging");
+        hideMenu();
+        if(navigator.vibrate) navigator.vibrate(18);
       }, LONG_PRESS_MS);
     }
 
-    function endDrag(){
+    function startPinch(){
       clearPress();
-      if(dragging){
-        dragging = false;
-        state.draggingNow = false;
-        document.body.style.overflow = "";
-      }
-      gesture = null;
-      persistBoard();
+      dragging = false;
+      state.draggingNow = false;
+      el.classList.remove("dragging");
+      moved = true;
+      var pts = Array.from(pointers.values()).slice(0, 2);
+      if(pts.length < 2) return;
+      gesture = {
+        startScale: item.scale,
+        startRotation: item.rotation,
+        startX: item.x,
+        startY: item.y,
+        startDist: pointDistance(pts[0], pts[1]),
+        startAngle: pointAngleDeg(pts[0], pts[1]),
+        startCenter: pointCenter(pts[0], pts[1])
+      };
     }
 
-    function handleTap(){
+    function finishInteraction(){
+      clearPress();
+      if(dragging || gesture || moved) persistBoard();
+      dragging = false;
+      state.draggingNow = false;
+      gesture = null;
+      el.classList.remove("dragging");
+    }
+
+    function registerTap(){
       var now = Date.now();
       state.selectedBoardId = item.id;
       updateSelectionVisuals();
-      if(now - lastTapTime < 320){
+      if(now - lastTapTime <= DOUBLE_TAP_MS){
         showMenu();
+        lastTapTime = 0;
       }else{
         hideMenu();
+        lastTapTime = now;
       }
-      lastTapTime = now;
     }
 
-    el.addEventListener("click", function(e){
-      e.stopPropagation();
-      if(moved || state.draggingNow) return;
-      handleTap();
-    });
+    el.addEventListener("contextmenu", function(e){ e.preventDefault(); });
+    el.addEventListener("dragstart", function(e){ e.preventDefault(); });
 
-    el.addEventListener("touchstart", function(e){
-      e.stopPropagation();
-      state.selectedBoardId = item.id;
-      updateSelectionVisuals();
-
-      if(e.touches.length === 1){
-        var t = e.touches[0];
-        beginSingle(t.clientX, t.clientY);
-      }else if(e.touches.length === 2){
-        clearPress();
-        dragging = false;
-        moved = true;
-        var t1 = e.touches[0], t2 = e.touches[1];
-        gesture = {
-          startScale: item.scale,
-          startRotation: item.rotation,
-          startX: item.x,
-          startY: item.y,
-          startDist: distance(t1, t2),
-          startAngle: angleDeg(t1, t2),
-          startCenter: centerPt(t1, t2)
-        };
-      }
-    }, { passive: true });
-
-    el.addEventListener("touchmove", function(e){
-      if(e.touches.length === 1){
-        var t = e.touches[0];
-        var dx = t.clientX - startX;
-        var dy = t.clientY - startY;
-        if(Math.hypot(dx, dy) > 8) moved = true;
-
-        if(dragging){
-          e.preventDefault();
-          scheduleMove(startItemX + dx, startItemY + dy, item.scale, item.rotation);
-        }else if(moved){
-          clearPress();
-        }
-      }else if(e.touches.length >= 2 && gesture){
-        e.preventDefault();
-        clearPress();
-        moved = true;
-        var a = e.touches[0], b = e.touches[1];
-        var newDist = distance(a, b);
-        var newAngle = angleDeg(a, b);
-        var c = centerPt(a, b);
-        var nextScale = Math.max(0.35, Math.min(3.2, gesture.startScale * (newDist / gesture.startDist)));
-        var nextRotation = gesture.startRotation + (newAngle - gesture.startAngle);
-        var nextX = gesture.startX + (c.x - gesture.startCenter.x);
-        var nextY = gesture.startY + (c.y - gesture.startCenter.y);
-        scheduleMove(nextX, nextY, nextScale, nextRotation);
-      }
-    }, { passive: false });
-
-    el.addEventListener("touchend", function(){
-      setTimeout(function(){ moved = false; }, 0);
-      endDrag();
-    });
-
-    el.addEventListener("touchcancel", function(){
-      moved = false;
-      endDrag();
-    });
-
-    // mouse fallback
-    var mouseDown = false;
-    el.addEventListener("mousedown", function(e){
+    el.addEventListener("pointerdown", function(e){
+      if(e.button != null && e.pointerType === "mouse" && e.button !== 0) return;
       e.preventDefault();
       e.stopPropagation();
       state.selectedBoardId = item.id;
       updateSelectionVisuals();
-      mouseDown = true;
-      beginSingle(e.clientX, e.clientY);
-    });
 
-    window.addEventListener("mousemove", function(e){
-      if(!mouseDown) return;
-      var dx = e.clientX - startX;
-      var dy = e.clientY - startY;
-      if(Math.hypot(dx, dy) > 5) moved = true;
-      if(dragging){
-        scheduleMove(startItemX + dx, startItemY + dy, item.scale, item.rotation);
-      }else if(moved){
+      pointers.set(e.pointerId, { pointerId:e.pointerId, clientX:e.clientX, clientY:e.clientY });
+      try { el.setPointerCapture(e.pointerId); } catch(_) {}
+
+      if(pointers.size === 1){
+        beginLongPress(e);
+      }else if(pointers.size === 2){
+        startPinch();
+      }else{
         clearPress();
       }
     });
 
-    window.addEventListener("mouseup", function(){
-      if(mouseDown){
-        mouseDown = false;
-        moved = false;
-        endDrag();
+    el.addEventListener("pointermove", function(e){
+      if(!pointers.has(e.pointerId)) return;
+      e.preventDefault();
+      pointers.set(e.pointerId, { pointerId:e.pointerId, clientX:e.clientX, clientY:e.clientY });
+
+      if(pointers.size >= 2){
+        if(!gesture) startPinch();
+        var pts = Array.from(pointers.values()).slice(0, 2);
+        if(!gesture || pts.length < 2) return;
+        var newDist = pointDistance(pts[0], pts[1]);
+        var newAngle = pointAngleDeg(pts[0], pts[1]);
+        var c = pointCenter(pts[0], pts[1]);
+        var safeStartDist = Math.max(1, gesture.startDist);
+        var nextScale = Math.max(0.35, Math.min(3.2, gesture.startScale * (newDist / safeStartDist)));
+        var nextRotation = gesture.startRotation + (newAngle - gesture.startAngle);
+        var nextX = gesture.startX + (c.x - gesture.startCenter.x);
+        var nextY = gesture.startY + (c.y - gesture.startCenter.y);
+        scheduleMove(nextX, nextY, nextScale, nextRotation);
+        return;
+      }
+
+      if(e.pointerId !== primaryPointerId) return;
+      var dx = e.clientX - startX;
+      var dy = e.clientY - startY;
+      var travel = Math.hypot(dx, dy);
+
+      if(dragging){
+        moved = true;
+        scheduleMove(startItemX + dx, startItemY + dy, item.scale, item.rotation);
+      }else if(travel > LONG_PRESS_SLOP){
+        moved = true;
+        clearPress();
       }
     });
+
+    function onPointerEnd(e){
+      if(!pointers.has(e.pointerId)) return;
+      var wasOnlyPointer = pointers.size === 1;
+      var wasDragging = dragging;
+      var wasGesture = !!gesture;
+      pointers.delete(e.pointerId);
+      try { el.releasePointerCapture(e.pointerId); } catch(_) {}
+
+      if(pointers.size === 0){
+        clearPress();
+        if(wasOnlyPointer && !wasDragging && !wasGesture && !moved){
+          registerTap();
+        }
+        finishInteraction();
+        primaryPointerId = null;
+        moved = false;
+      }else if(pointers.size === 1){
+        finishInteraction();
+        var remain = Array.from(pointers.values())[0];
+        beginLongPress(remain);
+      }
+    }
+
+    el.addEventListener("pointerup", onPointerEnd);
+    el.addEventListener("pointercancel", onPointerEnd);
+    el.addEventListener("lostpointercapture", function(e){
+      if(pointers.has(e.pointerId)) onPointerEnd(e);
+    });
+
+    el.addEventListener("dblclick", function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      state.selectedBoardId = item.id;
+      updateSelectionVisuals();
+      showMenu();
+    });
   }
+
+  function clampItemPosition(x, y, scale){
+    var rect = board.getBoundingClientRect();
+    if(!rect.width || !rect.height) return { x:x, y:y };
+    var half = Math.max(28, Math.min(BASE_WIDTH * Math.max(0.35, scale) * 0.28, 84));
+    return {
+      x: Math.max(half, Math.min(rect.width - half, x)),
+      y: Math.max(half, Math.min(rect.height - half, y))
+    };
+  }
+
+  function pointDistance(a,b){ return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY); }
+  function pointAngleDeg(a,b){ return Math.atan2(b.clientY - a.clientY, b.clientX - a.clientX) * 180 / Math.PI; }
+  function pointCenter(a,b){ return { x:(a.clientX + b.clientX)/2, y:(a.clientY + b.clientY)/2 }; }
 
   board.addEventListener("click", function(e){
     if(e.target === board){
@@ -823,9 +888,6 @@
     }
   });
 
-  function distance(a,b){ return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY); }
-  function angleDeg(a,b){ return Math.atan2(b.clientY - a.clientY, b.clientX - a.clientX) * 180 / Math.PI; }
-  function centerPt(a,b){ return { x:(a.clientX + b.clientX)/2, y:(a.clientY + b.clientY)/2 }; }
 
   function reorderSelected(mode){
     if(state.selectedBoardId == null){
@@ -1031,6 +1093,16 @@
       return ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[s];
     });
   }
+
+  window.addEventListener("resize", function(){
+    state.boardItems.forEach(function(item){
+      var pos = clampItemPosition(item.x, item.y, item.scale);
+      item.x = pos.x;
+      item.y = pos.y;
+    });
+    persistBoard();
+    renderBoard();
+  });
 
   renderBoard();
   renderGallery();
