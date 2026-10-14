@@ -27,7 +27,7 @@ export default async function handler(req, res) {
     const response = await client.chat.completions.create({
       model: "gpt-6-sol",
       temperature: 0,
-      max_tokens: 80,
+      max_tokens: 60,
       messages: [
         {
           role: "system",
@@ -47,7 +47,7 @@ person / building / product / object
         {
           role: "user",
           content: [
-            { type: "text", text: "快速识别图片主体，并进行分类。" },
+            { type: "text", text: "快速识别图片主体并分类。" },
             { type: "image_url", image_url: { url: image, detail: "low" } }
           ]
         }
@@ -60,6 +60,7 @@ person / building / product / object
     let data = { subject: "未知主体", type: "object" };
     try { data = JSON.parse(text); } catch {}
     data.type = normalizeType(data.type);
+
     return res.status(200).json(data);
   } catch (e) {
     return res.status(200).json({ subject: "未知主体", type: "object" });
