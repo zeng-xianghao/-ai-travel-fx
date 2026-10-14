@@ -4,79 +4,85 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-<title>AI旅行汇率助手</title>
+<meta name="viewport"
+content="width=device-width,initial-scale=1">
+
+
+<title>
+AI旅行汇率助手
+</title>
+
 
 <style>
-
-*{
-box-sizing:border-box;
-}
 
 body{
 
 margin:0;
+
 background:#f3f6fb;
+
 font-family:
--apple-system,
-BlinkMacSystemFont,
+Arial,
 "Microsoft YaHei";
 
-display:flex;
-justify-content:center;
-
 }
+
 
 
 .app{
 
-width:420px;
+max-width:420px;
+
+margin:auto;
+
 padding:20px;
 
 }
+
 
 
 .card{
 
 background:white;
-border-radius:24px;
+
 padding:20px;
+
+border-radius:25px;
+
 margin-bottom:20px;
 
 box-shadow:
-0 10px 30px rgba(0,0,0,.08);
+0 10px 30px #0002;
 
 }
+
 
 
 h1{
 
-font-size:28px;
+font-size:26px;
 
 }
+
 
 
 input,
 button{
 
+
 width:100%;
+
 padding:15px;
 
 border-radius:15px;
 
-font-size:16px;
-
 margin-top:15px;
 
-}
-
-
-input{
-
-border:1px solid #ddd;
+font-size:16px;
 
 }
+
 
 
 button{
@@ -85,9 +91,10 @@ background:#2563eb;
 
 color:white;
 
-border:none;
+border:0;
 
 }
+
 
 
 img{
@@ -101,9 +108,8 @@ margin-top:15px;
 }
 
 
-.result{
 
-margin-top:20px;
+.result{
 
 background:#eef6ff;
 
@@ -113,21 +119,16 @@ border-radius:20px;
 
 line-height:1.8;
 
-font-size:16px;
+}
+
+
+
+.flag{
+
+font-size:40px;
 
 }
 
-.loading{
-
-color:#2563eb;
-
-}
-
-.error{
-
-color:red;
-
-}
 
 
 </style>
@@ -151,7 +152,7 @@ color:red;
 
 <input
 
-id="photo"
+id="file"
 
 type="file"
 
@@ -160,12 +161,14 @@ accept="image/*"
 capture="environment">
 
 
+
 <img id="preview">
 
 
-<button onclick="analyze()">
 
-📷 AI识别价格
+<button onclick="runAI()">
+
+📷 识别价格
 
 </button>
 
@@ -177,11 +180,20 @@ capture="environment">
 <div class="card">
 
 
-<div id="result" class="result">
+<div id="result"
+class="result">
 
-等待上传图片...
+等待图片...
 
 </div>
+
+
+
+<button onclick="voice()">
+
+🔊 播报结果
+
+</button>
 
 
 </div>
@@ -194,56 +206,39 @@ capture="environment">
 <script>
 
 
-const API_URL =
-"https://ai-travel-fx.vercel.app/api/vision";
+let img64="";
 
-
-let imageBase64="";
-
-
-
-/*
- 图片压缩
- 解决 Vercel 413
-*/
-
-
-photo.onchange=function(){
-
-
-let file=this.files[0];
-
-
-if(!file)return;
+let speakText="";
 
 
 
-let img=new Image();
+file.onchange=e=>{
+
+
+let f=e.target.files[0];
 
 
 let reader=new FileReader();
 
 
 
-reader.onload=function(e){
+reader.onload=x=>{
 
 
-img.onload=function(){
+let img=new Image();
 
+
+img.onload=()=>{
 
 
 let canvas=document.createElement("canvas");
 
 
-let maxWidth=900;
+let scale=
+900/img.width;
 
 
-let scale=maxWidth/img.width;
-
-
-
-canvas.width=maxWidth;
-
+canvas.width=900;
 
 canvas.height=
 img.height*scale;
@@ -253,52 +248,39 @@ img.height*scale;
 let ctx=
 canvas.getContext("2d");
 
-
-
 ctx.drawImage(
-
 img,
-
 0,
-
 0,
-
 canvas.width,
-
 canvas.height
-
 );
 
 
 
-imageBase64=
+img64=
 canvas.toDataURL(
-
 "image/jpeg",
-
 0.65
-
 );
 
 
 
-preview.src=imageBase64;
-
-
-
-}
-
-
-
-img.src=e.target.result;
-
+preview.src=img64;
 
 
 }
 
 
 
-reader.readAsDataURL(file);
+img.src=x.target.result;
+
+
+}
+
+
+
+reader.readAsDataURL(f);
 
 
 }
@@ -306,88 +288,115 @@ reader.readAsDataURL(file);
 
 
 
-async function analyze(){
+async function runAI(){
 
-
-
-if(!imageBase64){
-
-alert("请先拍照");
-
-return;
-
-}
-
-
-
-result.className="result loading";
 
 result.innerHTML=
-"🤖 AI正在分析图片，请等待...";
+"🤖 AI识别中...";
 
 
 
-try{
-
-
-let response=
-
-await fetch(API_URL,{
-
+let r=
+await fetch(
+"/api/vision",
+{
 
 method:"POST",
 
-
 headers:{
-
 
 "Content-Type":
 "application/json"
 
-
 },
-
 
 body:JSON.stringify({
 
-image:imageBase64
+image:img64
 
 })
 
+}
 
-});
+);
 
 
 
 let data=
-await response.json();
+await r.json();
 
 
 
-console.log(data);
+let flag="🌍";
+
+
+let map={
+
+China:"🇨🇳",
+
+Japan:"🇯🇵",
+
+United States:"🇺🇸",
+
+USA:"🇺🇸",
+
+Korea:"🇰🇷",
+
+France:"🇫🇷",
+
+Germany:"🇩🇪"
+
+};
+
+
+if(map[data.country])
+
+flag=map[data.country];
 
 
 
-if(data.error){
+speakText=
 
-throw new Error(data.error);
+`${data.amount}${data.currency}，约${data.cny}人民币`;
 
-}
-
-
-
-result.className="result";
 
 
 result.innerHTML=
 
 `
 
-✅ 识别成功
+<div class="flag">
+${flag}
+</div>
 
-<br><br>
 
-${data.result}
+国家：
+
+${data.country || ""}
+
+
+<br>
+
+货币：
+
+${data.currency || ""}
+
+
+<br>
+
+价格：
+
+${data.symbol || ""}${data.amount || ""}
+
+
+<hr>
+
+
+人民币：
+
+<b>
+¥${data.cny || "计算失败"}
+</b>
 
 `;
 
@@ -395,29 +404,22 @@ ${data.result}
 
 }
 
-catch(err){
 
 
-result.className="result error";
+
+function voice(){
 
 
-result.innerHTML=
-
-`
-
-❌ AI连接失败
-
-<br><br>
-
-${err.message}
-
-`;
-
-console.error(err);
+let u=
+new SpeechSynthesisUtterance(
+speakText
+);
 
 
-}
+u.lang="zh-CN";
 
+
+speechSynthesis.speak(u);
 
 
 }
@@ -428,6 +430,5 @@ console.error(err);
 
 
 </body>
-
 
 </html>
