@@ -20,7 +20,7 @@
     .hero p { margin: 6px 0 0; color: #64748b; font-size: 13px; }
 
     .card {
-      background: rgba(255,255,255,.86);
+      background: rgba(255,255,255,.88);
       backdrop-filter: blur(18px);
       border: 1px solid rgba(255,255,255,.45);
       border-radius: 26px;
@@ -30,9 +30,7 @@
     }
 
     h2 { margin: 0 0 12px; font-size: 18px; font-weight: 900; }
-
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
     .preview {
       height: 220px;
       border: 2px dashed #93c5fd;
@@ -50,7 +48,6 @@
     .preview.show img { display: block; }
     .preview.show .placeholder { display: none; }
     .placeholder { padding: 16px; line-height: 1.8; font-size: 14px; }
-
     input[type=file] { display: none; }
 
     button {
@@ -66,7 +63,6 @@
     }
     button.secondary { background: #111827; }
     button.ghost { background: #eef2ff; color: #3730a3; }
-    button.warn { background: #ef4444; }
 
     .status {
       background: #eff6ff;
@@ -79,7 +75,7 @@
       margin-top: 12px;
     }
 
-    .pills { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
     .pill {
       display: inline-flex;
       align-items: center;
@@ -93,14 +89,12 @@
     }
 
     .board-wrap {
+      position: relative;
       background: linear-gradient(180deg, #fff7e8, #efd09b);
       border-radius: 28px;
       padding: 12px;
-      box-shadow:
-        inset 0 0 0 8px rgba(255,255,255,.18),
-        inset 0 0 24px rgba(141,96,36,.16);
+      box-shadow: inset 0 0 0 8px rgba(255,255,255,.18), inset 0 0 24px rgba(141,96,36,.16);
     }
-
     .board {
       height: 420px;
       border-radius: 22px;
@@ -131,19 +125,17 @@
       -webkit-user-select: none;
       will-change: transform, left, top;
     }
-
     .sticker {
       display: block;
-      width: 132px;
+      width: 128px;
       transform-origin: center center;
-      filter: drop-shadow(0 10px 12px rgba(0,0,0,.16));
+      filter: drop-shadow(0 10px 12px rgba(0,0,0,.15));
       user-select: none;
       -webkit-user-drag: none;
       pointer-events: none;
     }
-
     .sticker-wrap.selected .sticker {
-      outline: 2px dashed rgba(37,99,235,.75);
+      outline: 2px dashed rgba(37,99,235,.72);
       outline-offset: 4px;
     }
 
@@ -165,7 +157,6 @@
       white-space: nowrap;
     }
     .context-menu.show { display: flex; }
-
     .menu-btn {
       flex: 0 0 auto;
       height: 38px;
@@ -176,6 +167,8 @@
       color: #fff;
       font-size: 13px;
       font-weight: 800;
+      width: auto;
+      min-width: 0;
     }
     .menu-btn.delete { background: #ef4444; }
 
@@ -211,6 +204,7 @@
       color: #64748b;
       line-height: 1.4;
       min-height: 32px;
+      word-break: break-word;
     }
     .thumb-actions {
       display: grid;
@@ -227,7 +221,7 @@
       cursor: pointer;
     }
     .small-btn.use { background: #eef2ff; color: #3730a3; }
-    .small-btn.del { background: #111827; color: white; }
+    .small-btn.del { background: #111827; color: #fff; }
 
     @media (max-width: 380px) {
       .row { grid-template-columns: 1fr; }
@@ -239,7 +233,7 @@
 <div class="app">
   <div class="hero">
     <h1>🌌 AuroraMap</h1>
-    <p>AI Sticker Studio · 真正透明 PNG 抠图贴纸 · 微信 / 手机浏览器优化</p>
+    <p>AI Sticker Studio · 真正透明 PNG 抠图贴纸 · 手机 / 微信浏览器流畅优化版</p>
   </div>
 
   <div class="card">
@@ -259,16 +253,13 @@
       <button id="addBoardBtn" class="ghost">➕ 加入沙盘</button>
       <button id="shareBtn" class="ghost">📤 分享沙盘</button>
     </div>
-    <div class="mini">优化项：AI识别加速、贴纸自动进入贴纸库、白边厚度提升到更粗的 8pt 不规则描边。</div>
+    <div class="mini">优化：长按任意拖动、白边 6pt、更流畅的沙盘渲染、生成后自动加入贴纸库、双击贴纸显示操作菜单。</div>
   </div>
 
   <div class="card">
     <h2>🏖 贴纸沙盘</h2>
     <div class="board-wrap">
-      <div id="board" class="board empty">
-        上传并生成贴纸后会显示在贴纸库<br>
-        点击“加入沙盘”或贴纸库中的“加入沙盘”按钮即可使用
-      </div>
+      <div id="board" class="board empty">上传并生成贴纸后会自动进入贴纸库<br>点击“加入沙盘”或贴纸库中的“加入沙盘”即可使用</div>
       <div id="contextMenu" class="context-menu">
         <button class="menu-btn" data-action="front">置顶</button>
         <button class="menu-btn" data-action="up">上移一层</button>
@@ -277,7 +268,7 @@
         <button class="menu-btn delete" data-action="delete">删除</button>
       </div>
     </div>
-    <div class="mini">操作方式：长按贴纸约 280ms 后可任意拖动；双指缩放和旋转；双击贴纸弹出菜单。</div>
+    <div class="mini">操作：长按贴纸约 220ms 即可任意拖动；双指缩放与旋转；双击贴纸弹出菜单。</div>
   </div>
 
   <div class="card">
@@ -288,10 +279,10 @@
 
 <script>
 (function(){
-  const BOARD_KEY = "auroramap_board_v113";
-  const LIBRARY_KEY = "auroramap_library_v113";
-  const LONG_PRESS_MS = 280;
-  const BASE_WIDTH = 132;
+  const BOARD_KEY = "auroramap_board_v114";
+  const LIBRARY_KEY = "auroramap_library_v114";
+  const LONG_PRESS_MS = 220;
+  const BASE_WIDTH = 128;
   const $ = (id) => document.getElementById(id);
 
   const state = {
@@ -301,7 +292,6 @@
     boardItems: [],
     libraryItems: [],
     selectedBoardId: null,
-    menuVisible: false,
     bgRemovalLoaded: null
   };
 
@@ -323,7 +313,7 @@
   $("shareBtn").addEventListener("click", shareBoardImage);
 
   contextMenu.addEventListener("click", (e) => {
-    const action = e.target && e.target.dataset && e.target.dataset.action;
+    const action = e.target?.dataset?.action;
     if(!action) return;
     if(action === "delete") deleteSelected();
     else reorderSelected(action);
@@ -354,8 +344,8 @@
   async function handleFileChange(e){
     const file = e.target.files && e.target.files[0];
     if(!file) return;
-    const data = await fileToDataURL(file);
-    state.sourceImage = await compressDataUrl(data, 1400, 0.86);
+    const raw = await fileToDataURL(file);
+    state.sourceImage = await compressDataUrl(raw, 1400, 0.86);
     state.cutoutDataUrl = "";
     state.currentMeta = null;
     renderSubjectPills(null);
@@ -378,7 +368,7 @@
       setStatus("2/3 正在加载 AI 抠图引擎...");
       const removeBackground = await loadBackgroundRemoval();
 
-      setStatus("3/3 正在生成透明 PNG 与 8pt 粗白边贴纸...");
+      setStatus("3/3 正在生成透明 PNG 与 6pt 粗不规则白边贴纸...");
       const cutoutBlob = await removeBackground(dataUrlToBlob(state.sourceImage), { progress: () => {} });
       const stickerBlob = await buildTrueStickerBlob(cutoutBlob);
       state.cutoutDataUrl = await blobToDataURL(stickerBlob);
@@ -405,7 +395,7 @@
       createdAt: new Date().toLocaleString()
     };
     state.libraryItems.unshift(item);
-    if(state.libraryItems.length > 60) state.libraryItems.length = 60;
+    if(state.libraryItems.length > 100) state.libraryItems.length = 100;
     persistLibrary();
   }
 
@@ -452,7 +442,7 @@
     const sctx = srcCanvas.getContext("2d");
     sctx.drawImage(bmp, 0, 0);
 
-    const border = 68; // ~8pt更粗白边
+    const border = 52; // ~6pt 粗白边
     const pad = border * 4;
 
     const maskCanvas = document.createElement("canvas");
@@ -479,7 +469,7 @@
 
     for(let ang = 0; ang < 360; ang += 6){
       const rad = ang * Math.PI / 180;
-      for(let r = 4; r <= border; r += 6){
+      for(let r = 4; r <= border; r += 5){
         const dx = Math.round(Math.cos(rad) * r);
         const dy = Math.round(Math.sin(rad) * r);
         ctx.drawImage(maskCanvas, ox + dx, oy + dy);
@@ -487,9 +477,9 @@
     }
 
     ctx.save();
-    ctx.shadowColor = "rgba(0,0,0,.16)";
-    ctx.shadowBlur = 16;
-    ctx.shadowOffsetY = 8;
+    ctx.shadowColor = "rgba(0,0,0,.14)";
+    ctx.shadowBlur = 14;
+    ctx.shadowOffsetY = 7;
     ctx.drawImage(srcCanvas, ox, oy);
     ctx.restore();
 
@@ -546,8 +536,8 @@
     renderGallery();
   }
 
-  function showMenu(){ contextMenu.classList.add("show"); state.menuVisible = true; }
-  function hideMenu(){ contextMenu.classList.remove("show"); state.menuVisible = false; }
+  function showMenu(){ contextMenu.classList.add("show"); }
+  function hideMenu(){ contextMenu.classList.remove("show"); }
 
   function renderBoard(){
     board.innerHTML = "";
@@ -555,7 +545,7 @@
 
     if(!state.boardItems.length){
       board.classList.add("empty");
-      board.innerHTML = `上传并生成贴纸后会显示在贴纸库<br>点击“加入沙盘”或贴纸库中的“加入沙盘”按钮即可使用`;
+      board.innerHTML = '上传并生成贴纸后会自动进入贴纸库<br>点击“加入沙盘”或贴纸库中的“加入沙盘”即可使用';
       board.appendChild(contextMenu);
       hideMenu();
       return;
@@ -566,7 +556,7 @@
 
     sorted.forEach(item => {
       const wrap = document.createElement("div");
-      wrap.className = "sticker-wrap" + (item.id === state.selectedBoardId ? " selected" : "");
+      wrap.className = "sticker-wrap";
       wrap.dataset.id = item.id;
       applyItemTransform(wrap, item);
 
@@ -576,43 +566,18 @@
       wrap.appendChild(img);
 
       attachGesture(wrap, item);
-
-      let lastTap = 0;
-      wrap.addEventListener("click", (e) => {
-        e.stopPropagation();
-        state.selectedBoardId = item.id;
-
-        const now = Date.now();
-        if(now - lastTap < 300){
-          showMenu();
-        }else{
-          hideMenu();
-        }
-        lastTap = now;
-        updateSelectionUI();
-      });
-
       board.appendChild(wrap);
     });
 
-    updateSelectionUI();
+    updateSelectionVisuals();
   }
 
-  board.addEventListener("click", () => {
-    state.selectedBoardId = null;
-    hideMenu();
-    updateSelectionUI();
-  });
-
-  function updateSelectionUI(){
+  function updateSelectionVisuals(){
     const wraps = board.querySelectorAll(".sticker-wrap");
     wraps.forEach(w => {
       const id = Number(w.dataset.id);
       w.classList.toggle("selected", id === state.selectedBoardId);
-      const img = w.querySelector(".sticker");
-      if(img) img.classList.toggle("selected", id === state.selectedBoardId);
     });
-    persistBoard();
   }
 
   function applyItemTransform(el, item){
@@ -625,10 +590,26 @@
   function attachGesture(el, item){
     let pressTimer = null;
     let dragging = false;
-    let moved = false;
     let startX = 0, startY = 0, startItemX = 0, startItemY = 0;
-
     let gesture = null;
+    let lastTapTime = 0;
+    let rafId = 0;
+    let pendingMove = null;
+
+    function scheduleTransform(x, y, scale, rotation){
+      pendingMove = { x, y, scale, rotation };
+      if(rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = 0;
+        if(!pendingMove) return;
+        item.x = pendingMove.x;
+        item.y = pendingMove.y;
+        item.scale = pendingMove.scale;
+        item.rotation = pendingMove.rotation;
+        applyItemTransform(el, item);
+        pendingMove = null;
+      });
+    }
 
     function clearPress(){
       if(pressTimer){
@@ -637,25 +618,46 @@
       }
     }
 
+    function onSinglePointStart(clientX, clientY){
+      startX = clientX;
+      startY = clientY;
+      startItemX = item.x;
+      startItemY = item.y;
+      dragging = false;
+      clearPress();
+      pressTimer = setTimeout(() => { dragging = true; }, LONG_PRESS_MS);
+    }
+
+    function onTap(){
+      const now = Date.now();
+      state.selectedBoardId = item.id;
+      updateSelectionVisuals();
+
+      if(now - lastTapTime < 300){
+        showMenu();
+      }else{
+        hideMenu();
+      }
+      lastTapTime = now;
+    }
+
+    el.addEventListener("click", (e) => {
+      e.stopPropagation();
+      onTap();
+    });
+
+    // touch
     el.addEventListener("touchstart", (e) => {
       e.stopPropagation();
       state.selectedBoardId = item.id;
-      updateSelectionUI();
+      updateSelectionVisuals();
 
       if(e.touches.length === 1){
         const t = e.touches[0];
-        moved = false;
-        dragging = false;
-        startX = t.clientX;
-        startY = t.clientY;
-        startItemX = item.x;
-        startItemY = item.y;
-        clearPress();
-        pressTimer = setTimeout(() => { dragging = true; }, LONG_PRESS_MS);
-      }else if(e.touches.length === 2){
+        onSinglePointStart(t.clientX, t.clientY);
+      } else if(e.touches.length === 2){
         clearPress();
         dragging = false;
-        moved = true;
         const t1 = e.touches[0], t2 = e.touches[1];
         gesture = {
           startScale: item.scale,
@@ -674,29 +676,25 @@
         const t = e.touches[0];
         const dx = t.clientX - startX;
         const dy = t.clientY - startY;
-        if(Math.abs(dx) > 6 || Math.abs(dy) > 6) moved = true;
-
         if(dragging){
           e.preventDefault();
-          item.x = startItemX + dx;
-          item.y = startItemY + dy;
-          applyItemTransform(el, item);
-        }else if(moved){
-          clearPress();
+          scheduleTransform(startItemX + dx, startItemY + dy, item.scale, item.rotation);
+        } else {
+          const movedFar = Math.hypot(dx, dy) > 10;
+          if(movedFar) clearPress();
         }
-      }else if(e.touches.length >= 2 && gesture){
+      } else if(e.touches.length >= 2 && gesture){
         e.preventDefault();
         clearPress();
         const t1 = e.touches[0], t2 = e.touches[1];
         const newDist = distance(t1, t2);
         const newAngle = angleDeg(t1, t2);
         const c = centerPt(t1, t2);
-
-        item.scale = Math.max(0.35, Math.min(3.2, gesture.startScale * (newDist / gesture.startDist)));
-        item.rotation = gesture.startRotation + (newAngle - gesture.startAngle);
-        item.x = gesture.startX + (c.x - gesture.startCenter.x);
-        item.y = gesture.startY + (c.y - gesture.startCenter.y);
-        applyItemTransform(el, item);
+        const nextScale = Math.max(0.35, Math.min(3.2, gesture.startScale * (newDist / gesture.startDist)));
+        const nextRotation = gesture.startRotation + (newAngle - gesture.startAngle);
+        const nextX = gesture.startX + (c.x - gesture.startCenter.x);
+        const nextY = gesture.startY + (c.y - gesture.startCenter.y);
+        scheduleTransform(nextX, nextY, nextScale, nextRotation);
       }
     }, { passive: false });
 
@@ -714,36 +712,24 @@
       persistBoard();
     });
 
-    // Mouse fallback
+    // mouse fallback
     let mouseDown = false;
     el.addEventListener("mousedown", (e) => {
       e.preventDefault();
       e.stopPropagation();
       state.selectedBoardId = item.id;
-      updateSelectionUI();
-
+      updateSelectionVisuals();
       mouseDown = true;
-      moved = false;
-      dragging = false;
-      startX = e.clientX;
-      startY = e.clientY;
-      startItemX = item.x;
-      startItemY = item.y;
-
-      clearPress();
-      pressTimer = setTimeout(() => { dragging = true; }, LONG_PRESS_MS);
+      onSinglePointStart(e.clientX, e.clientY);
     });
 
     window.addEventListener("mousemove", (e) => {
       if(!mouseDown) return;
       const dx = e.clientX - startX;
       const dy = e.clientY - startY;
-      if(Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
       if(dragging){
-        item.x = startItemX + dx;
-        item.y = startItemY + dy;
-        applyItemTransform(el, item);
-      }else if(moved){
+        scheduleTransform(startItemX + dx, startItemY + dy, item.scale, item.rotation);
+      } else if(Math.hypot(dx, dy) > 5){
         clearPress();
       }
     });
@@ -757,6 +743,14 @@
       }
     });
   }
+
+  board.addEventListener("click", (e) => {
+    if(e.target === board){
+      state.selectedBoardId = null;
+      hideMenu();
+      updateSelectionVisuals();
+    }
+  });
 
   function distance(a,b){ return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY); }
   function angleDeg(a,b){ return Math.atan2(b.clientY - a.clientY, b.clientX - a.clientX) * 180 / Math.PI; }
@@ -772,11 +766,11 @@
     if(cur < 0) return;
 
     if(mode === "front" && cur < sorted.length - 1){
-      const item = sorted.splice(cur, 1)[0];
-      sorted.push(item);
+      const it = sorted.splice(cur, 1)[0];
+      sorted.push(it);
     }else if(mode === "back" && cur > 0){
-      const item = sorted.splice(cur, 1)[0];
-      sorted.unshift(item);
+      const it = sorted.splice(cur, 1)[0];
+      sorted.unshift(it);
     }else if(mode === "up" && cur < sorted.length - 1){
       [sorted[cur], sorted[cur+1]] = [sorted[cur+1], sorted[cur]];
     }else if(mode === "down" && cur > 0){
@@ -859,7 +853,7 @@
     canvas.width = rect.width * 2;
     canvas.height = rect.height * 2;
     const ctx = canvas.getContext("2d");
-    ctx.scale(2,2);
+    ctx.scale(2, 2);
 
     const grad = ctx.createLinearGradient(0,0,0,rect.height);
     grad.addColorStop(0, "#f6e2af");
@@ -876,7 +870,7 @@
       }
     }
 
-    const sorted = [...state.boardItems].sort((a,b) => (a.z||0)-(b.z||0));
+    const sorted = [...state.boardItems].sort((a,b) => (a.z||0) - (b.z||0));
     for(const item of sorted){
       const img = await loadImage(item.src);
       ctx.save();
@@ -888,7 +882,6 @@
       ctx.drawImage(img, -width/2, -height/2, width, height);
       ctx.restore();
     }
-
     return await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
   }
 
