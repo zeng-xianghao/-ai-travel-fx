@@ -10,15 +10,14 @@ const client = new OpenAI({
 });
 
 
+export default async function handler(req,res){
 
-export default async function handler(req, res) {
 
-
-  if (req.method !== "POST") {
+  if(req.method !== "POST"){
 
     return res.status(405).json({
 
-      error: "只支持POST请求"
+      error:"POST only"
 
     });
 
@@ -26,18 +25,17 @@ export default async function handler(req, res) {
 
 
 
-  try {
+  try{
 
 
-    const { image } = req.body;
+    const {image}=req.body;
 
 
-
-    if (!image) {
+    if(!image){
 
       return res.status(400).json({
 
-        error: "没有收到图片"
+        error:"没有图片"
 
       });
 
@@ -48,40 +46,39 @@ export default async function handler(req, res) {
     const response = await client.chat.completions.create({
 
 
-      model: "gpt-6-luna",
+      model:"gpt-6-luna",
 
 
-      messages: [
+      messages:[
+
 
         {
 
-          role: "system",
+          role:"system",
 
           content:
-          `
-你是一个旅行汇率AI助手。
+`
+你是旅行AI识别助手。
 
-分析用户上传图片。
+分析图片中的价格。
 
-必须返回JSON格式：
+必须返回JSON:
 
 {
- "country":"",
- "currency":"",
- "symbol":"",
- "amount":"",
- "items":[]
+country:"",
+currency:"",
+symbol:"",
+amount:"",
+items:[]
 }
 
-规则：
+识别：
+- 国家
+- 货币
+- 价格
+- 商品
 
-1. 判断国家
-2. 判断货币
-3. 提取价格
-4. 菜单列出商品
-5. 小票列出商品和总价
-
-不要输出解释。
+只返回JSON。
 `
 
         },
@@ -89,15 +86,15 @@ export default async function handler(req, res) {
 
         {
 
-          role: "user",
+          role:"user",
 
-          content: [
+          content:[
 
             {
 
               type:"text",
 
-              text:"请识别图片中的价格信息"
+              text:"分析这张图片"
 
             },
 
@@ -118,6 +115,7 @@ export default async function handler(req, res) {
 
         }
 
+
       ]
 
     });
@@ -133,10 +131,10 @@ export default async function handler(req, res) {
 
 
 
-  } catch(error) {
+  }catch(error){
 
 
-    console.error(error);
+    console.log(error);
 
 
     return res.status(500).json({
