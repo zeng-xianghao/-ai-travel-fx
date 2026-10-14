@@ -1,14 +1,313 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
+
 <head>
-<title>AI Travel FX</title>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1.0">
+
+<title>
+AI旅行汇率助手
+</title>
+
+
+<style>
+
+body{
+
+margin:0;
+background:#f5f7fb;
+font-family:
+-apple-system,
+BlinkMacSystemFont,
+"Microsoft YaHei";
+
+display:flex;
+justify-content:center;
+
+}
+
+
+.app{
+
+width:380px;
+padding:25px;
+
+}
+
+
+.card{
+
+background:white;
+border-radius:25px;
+padding:20px;
+margin-top:20px;
+
+box-shadow:
+0 15px 40px #0002;
+
+}
+
+
+h1{
+
+font-size:26px;
+
+}
+
+
+input,
+button{
+
+width:100%;
+padding:15px;
+border-radius:15px;
+
+border:1px solid #ddd;
+
+margin-top:15px;
+
+font-size:16px;
+
+}
+
+
+button{
+
+background:#2563eb;
+color:white;
+border:none;
+
+}
+
+
+.result{
+
+margin-top:20px;
+
+background:#eff6ff;
+
+border-radius:20px;
+
+padding:20px;
+
+font-size:18px;
+
+line-height:1.8;
+
+}
+
+
+img{
+
+width:100%;
+border-radius:20px;
+
+margin-top:15px;
+
+}
+
+
+</style>
+
 </head>
+
 
 <body>
 
-<h1>🤖 AI旅行汇率助手</h1>
 
-<p>Vercel 部署成功</p>
+<div class="app">
+
+
+<h1>
+🤖 AI旅行汇率助手
+</h1>
+
+
+<div class="card">
+
+
+<input
+
+id="photo"
+
+type="file"
+
+accept="image/*"
+
+capture="environment">
+
+
+<img id="preview">
+
+
+<button onclick="analyze()">
+
+📷 AI识别价格
+
+</button>
+
+
+</div>
+
+
+<div class="card">
+
+
+<div id="result"
+class="result">
+
+等待拍照...
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+<script>
+
+
+const API_URL =
+
+"https://ai-travel-fx.vercel.app/api/vision";
+
+
+
+let imageBase64="";
+
+
+
+photo.onchange=function(){
+
+
+let file=this.files[0];
+
+
+let reader=new FileReader();
+
+
+reader.onload=function(e){
+
+
+imageBase64=e.target.result;
+
+
+preview.src=imageBase64;
+
+
+}
+
+
+reader.readAsDataURL(file);
+
+
+}
+
+
+
+
+async function analyze(){
+
+
+if(!imageBase64){
+
+alert("请先拍照");
+
+return;
+
+}
+
+
+
+result.innerHTML=
+
+"🤖 AI正在分析图片...";
+
+
+
+try{
+
+
+let res=
+
+await fetch(API_URL,{
+
+method:"POST",
+
+headers:{
+
+
+"Content-Type":
+"application/json"
+
+
+},
+
+
+body:JSON.stringify({
+
+image:imageBase64
+
+})
+
+
+});
+
+
+
+let data=
+
+await res.json();
+
+
+
+console.log(data);
+
+
+
+result.innerHTML=
+
+`
+
+✅ AI识别完成
+
+<br><br>
+
+${data.result}
+
+`;
+
+
+
+}
+
+catch(error){
+
+
+result.innerHTML=
+
+"❌ AI连接失败";
+
+
+console.log(error);
+
+
+}
+
+
+}
+
+
+</script>
+
 
 </body>
+
 </html>
