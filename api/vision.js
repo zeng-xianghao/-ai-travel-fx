@@ -54,7 +54,19 @@ export default async function handler(req, res){
       messages: [
         {
           role: "system",
-          content: '你是旅行价格识别AI。识别图片中的国家、货币、货币符号、金额。只输出 JSON，不要解释，不要 Markdown。格式：{"country":"","currency":"","symbol":"","amount":""}'
+          content: `
+你是旅行价格识别AI。
+识别图片中的国家、货币、货币符号、金额。
+只输出 JSON，不要解释，不要 Markdown。
+
+格式：
+{
+  "country":"",
+  "currency":"",
+  "symbol":"",
+  "amount":""
+}
+`
         },
         {
           role: "user",
@@ -70,7 +82,7 @@ export default async function handler(req, res){
     text = text.replace(/```json/g, "").replace(/```/g, "").trim();
 
     let data = {};
-    try { data = JSON.parse(text); } catch { data = { raw: text }; }
+    try{ data = JSON.parse(text); } catch { data = { raw: text }; }
 
     const code = normalizeCurrency(data.currency || "");
     data.currencyCode = code;
