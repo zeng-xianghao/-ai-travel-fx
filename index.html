@@ -1,651 +1,149 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AuroraMap V10.6</title>
-  <style>
-    *{box-sizing:border-box}
-    :root{
-      --bg1:#dbeafe;--bg2:#ede9fe;--card:rgba(255,255,255,.76);--text:#111827;--muted:#64748b;--line:#e5e7eb;--blue:#2563eb;--purple:#7c3aed;--green:#16a34a;
-    }
-    body{margin:0;min-height:100vh;background:linear-gradient(135deg,var(--bg1),var(--bg2));font-family:-apple-system,BlinkMacSystemFont,"Microsoft YaHei",Arial,sans-serif;color:var(--text)}
-    .app{max-width:430px;margin:0 auto;min-height:100vh;padding:18px 16px 96px}
-    .topbar{display:flex;align-items:center;justify-content:space-between;margin:8px 2px 18px}
-    .brand{font-size:30px;font-weight:900;letter-spacing:.2px}
-    .brand small{display:block;font-size:13px;color:var(--muted);font-weight:600;margin-top:4px}
-    .glass{background:var(--card);backdrop-filter:blur(18px);border-radius:28px;padding:18px;box-shadow:0 14px 38px rgba(0,0,0,.08);margin-bottom:16px;border:1px solid rgba(255,255,255,.35)}
-    .page{display:none}.page.active{display:block}
-    .section-title{font-size:18px;font-weight:800;margin:0 0 12px}
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .mini{background:rgba(255,255,255,.76);border-radius:20px;padding:14px}
-    .mini .label{color:var(--muted);font-size:12px;margin-bottom:8px}
-    .mini .value{font-size:22px;font-weight:900}
-    .muted{color:var(--muted)}
-    .preview{height:252px;border:2px dashed #93c5fd;background:#fff;border-radius:24px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;text-align:center;color:var(--muted);padding:16px}
-    .preview img{width:100%;height:100%;object-fit:cover;display:none}
-    .preview.show img{display:block}.preview.show .placeholder{display:none}
-    .placeholder{font-size:15px;line-height:1.7}
-    input[type=file]{display:none}
-    button,.button{width:100%;height:52px;border:0;border-radius:26px;color:#fff;background:linear-gradient(135deg,var(--blue),var(--purple));font-size:16px;font-weight:800;cursor:pointer}
-    .button.secondary,button.secondary{background:#111827}
-    .button.ghost,button.ghost{background:#eef2ff;color:#3730a3}
-    .button.green,button.green{background:linear-gradient(135deg,#16a34a,#22c55e)}
-    .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-    .status{background:#eff6ff;color:#1d4ed8;border-radius:18px;padding:14px;line-height:1.7;font-size:14px}
-    .result-card{background:#fff;border-radius:22px;padding:16px;margin-top:12px;border:1px solid var(--line)}
-    .flag{font-size:44px;margin-bottom:6px}
-    .money{font-size:32px;color:var(--green);font-weight:900;margin-top:6px}
-    .hr{height:1px;background:var(--line);margin:14px 0}
-    .record{display:grid;grid-template-columns:64px 1fr;gap:12px;background:#fff;border-radius:20px;padding:12px;margin-top:12px;border:1px solid var(--line)}
-    .record img{width:64px;height:64px;border-radius:14px;object-fit:cover;background:#f3f4f6}
-    .record .title{font-size:16px;font-weight:800;margin-bottom:6px}
-    .record .sub{color:var(--muted);font-size:12px;line-height:1.5}
-    .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-    .chip{padding:8px 12px;border-radius:999px;background:#fff;border:1px solid var(--line);font-size:12px;font-weight:700}
-    .sticker-stage{min-height:180px;display:flex;align-items:center;justify-content:center;border-radius:24px;background:radial-gradient(circle at 20px 20px,#f3f4f6 8px,transparent 8px) 0 0/40px 40px,radial-gradient(circle at 40px 40px,#f3f4f6 8px,transparent 8px) 0 0/40px 40px,#fff;overflow:hidden;border:1px solid var(--line);padding:12px}
-    .sticker-stage img{max-width:100%;max-height:320px;display:block}
-    .small{font-size:12px;color:var(--muted);line-height:1.6}
-    .bottom{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;pointer-events:none}
-    .bottom-inner{width:min(430px,100%);height:80px;background:rgba(255,255,255,.9);backdrop-filter:blur(20px);border-top-left-radius:22px;border-top-right-radius:22px;box-shadow:0 -8px 25px rgba(0,0,0,.1);display:grid;grid-template-columns:repeat(5,1fr);pointer-events:auto}
-    .tab{display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:12px;color:var(--muted);cursor:pointer;gap:3px}
-    .tab.active{color:#111827;font-weight:800}.tab .icon{font-size:22px}
-    .map-box{height:180px;border-radius:22px;background:#fff;border:1px solid var(--line);padding:14px;overflow:auto}
-    .map-dot{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px dashed #e5e7eb}
-    .map-dot:last-child{border-bottom:0}
-    .map-badge{width:34px;height:34px;border-radius:50%;background:#eff6ff;display:flex;align-items:center;justify-content:center;font-size:18px}
-  
-/* AuroraMap Sticker Pro upgrade */
-.sticker-pro-panel{
-background:linear-gradient(180deg,#fff7e8,#efd09b);
-border-radius:30px;padding:18px;margin-top:15px;
-box-shadow:inset 0 0 30px rgba(130,80,20,.18);
-}
-.sticker-canvas{
-height:360px;border-radius:30px;position:relative;overflow:hidden;
-background:
-radial-gradient(circle at 20px 20px,#ffffff55 2px,transparent 3px) 0 0/35px 35px,
-linear-gradient(135deg,#f6dfa8,#d8af69);
-box-shadow:inset 0 0 0 8px rgba(255,255,255,.25);
-}
-.sticker-item{
-position:absolute;width:130px;touch-action:none;
-filter:drop-shadow(0 12px 12px rgba(0,0,0,.22));
-cursor:grab;
-}
-.sticker-badge{
-display:inline-block;padding:8px 12px;border-radius:20px;
-background:#fff;color:#7c3aed;font-weight:800;margin-top:10px;
-}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>AuroraMap AI Sticker</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Microsoft YaHei",Arial;background:linear-gradient(135deg,#dbeafe,#ede9fe)}
+.app{max-width:430px;margin:auto;padding:16px 16px 90px}
+.card{background:rgba(255,255,255,.88);border-radius:24px;padding:16px;margin-bottom:16px;box-shadow:0 8px 25px #0001}
+h2{margin:0 0 12px}
+button{width:100%;height:48px;border:0;border-radius:24px;background:#2563eb;color:#fff;font-weight:700;margin-top:10px}
+input{display:none}
+.preview{height:220px;border:2px dashed #60a5fa;border-radius:20px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fff}
+.preview img{max-width:100%;max-height:100%;object-fit:contain}
+.sandbox{height:380px;border-radius:25px;overflow:hidden;position:relative;
+background:radial-gradient(circle,#ffffff66 2px,transparent 3px) 0 0/35px 35px,linear-gradient(#f4dda8,#d9ae67)}
+.sticker{position:absolute;width:110px;touch-action:none;filter:drop-shadow(0 10px 12px #0004)}
+.info{padding:12px;background:#eff6ff;border-radius:16px}
+nav{position:fixed;bottom:0;left:0;right:0;height:70px;background:#fff;display:flex;justify-content:space-around;align-items:center;box-shadow:0 -5px 20px #0002}
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="topbar">
-    <div class="brand">🌌 AuroraMap<small>AI Travel Currency Assistant</small></div>
-  </div>
+<div class="card"><h2>🌌 AuroraMap</h2><div>AI旅行贴纸工作室</div></div>
 
-  <section id="page-home" class="page active">
-    <div class="glass">
-      <div class="section-title">📍 当前地区</div>
-      <div id="geoSummary" class="status">正在获取定位...</div>
-      <div class="chips" id="geoChips"></div>
-    </div>
-
-    <div class="glass">
-      <div class="section-title">📊 旅行记录总览</div>
-      <div class="grid2">
-        <div class="mini"><div class="label">识别次数</div><div id="homeCount" class="value">0</div></div>
-        <div class="mini"><div class="label">累计人民币</div><div id="homeTotalCNY" class="value">¥0</div></div>
-      </div>
-      <div class="chips" id="countryStats"></div>
-    </div>
-
-    <div class="glass">
-      <div class="section-title">✨ 功能入口</div>
-      <div class="btn-row">
-        <button class="ghost" data-go="camera">📷 拍照识别</button>
-        <button class="ghost" data-go="travel">🗺 旅行记录</button>
-      </div>
-      <div class="btn-row">
-        <button class="ghost" data-go="sticker">🏷 贴纸区</button>
-        <button class="ghost" data-go="me">💎 我的</button>
-      </div>
-    </div>
-  </section>
-
-  <section id="page-camera" class="page">
-    <div class="glass">
-      <div class="section-title">📷 AI价格识别</div>
-      <label class="preview" id="cameraPreviewLabel" for="cameraFile">
-        <img id="cameraPreviewImage" alt="">
-        <div class="placeholder">点击上传商品价格、菜单、钞票或小票照片</div>
-      </label>
-      <input id="cameraFile" type="file" accept="image/*" capture="environment">
-      <div class="btn-row">
-        <button id="scanBtn">🤖 开始识别</button>
-        <button id="saveVoiceBtn" class="secondary">🔊 播报结果</button>
-      </div>
-      <div class="small" style="margin-top:10px">智能双模型路由：普通照片优先使用 gpt-6-sol，复杂图片自动切换 gpt-6-luna。</div>
-    </div>
-
-    <div class="glass">
-      <div id="cameraStatus" class="status">等待图片</div>
-      <div id="cameraResult"></div>
-    </div>
-  </section>
-
-  <section id="page-travel" class="page">
-    <div class="glass">
-      <div class="section-title">🗺 旅行记录</div>
-      <div class="grid2">
-        <div class="mini"><div class="label">记录数量</div><div id="travelCount" class="value">0</div></div>
-        <div class="mini"><div class="label">累计人民币</div><div id="travelTotalCNY" class="value">¥0</div></div>
-      </div>
-      <div class="btn-row">
-        <button id="exportHistoryBtn" class="ghost">⬇ 导出记录</button>
-        <button id="clearHistoryBtn" class="secondary">🗑 清空记录</button>
-      </div>
-    </div>
-
-    <div class="glass">
-      <div class="section-title">🌍 足迹地图（记录流）</div>
-      <div id="mapFlow" class="map-box">暂无记录</div>
-    </div>
-
-    <div class="glass">
-      <div class="section-title">🧾 详细记录</div>
-      <div id="historyList">暂无记录</div>
-    </div>
-  </section>
-
-  <section id="page-sticker" class="page">
-    <div class="glass">
-      <div class="section-title">🏷 贴纸区</div>
-      <label class="preview" id="stickerPreviewLabel" for="stickerFile">
-        <img id="stickerInputPreview" alt="">
-        <div class="placeholder">上传一张图片，自动提取主体并生成带白边的不规则贴纸</div>
-      </label>
-      <input id="stickerFile" type="file" accept="image/*">
-      <div class="btn-row">
-        <button id="makeStickerBtn" class="green">✨ 生成贴纸</button>
-        <button id="downloadStickerBtn" class="secondary">⬇ 下载 PNG</button>
-      </div>
-      <div class="small" style="margin-top:10px">首次使用贴纸功能会加载在线背景移除模型，可能稍慢；生成后会自动加白边，适合做旅行贴纸。</div>
-    </div>
-
-    <div class="glass">
-      <div class="section-title">🎨 贴纸结果</div>
-      <div id="stickerStatus" class="status">等待图片</div>
-      <div class="sticker-stage" style="margin-top:12px">
-        <img id="stickerResultImage" alt="">
-      </div>
-    </div>
-  </section>
-
-  <section id="page-me" class="page">
-    <div class="glass">
-      <div class="section-title">👤 我的</div>
-      <div class="mini">
-        <div class="label">当前身份</div>
-        <div class="value" style="font-size:22px">游客账户</div>
-      </div>
-      <div class="btn-row" style="margin-top:12px">
-        <button class="ghost">登录 / 注册</button>
-        <button class="secondary">同步云端</button>
-      </div>
-    </div>
-
-    <div class="glass">
-      <div class="section-title">💎 Pro 会员</div>
-      <div class="small">无限 AI 识别 · 更长旅行记录 · 云端同步 · 高级贴纸导出 · 离线旅行包</div>
-      <div class="btn-row">
-        <button>升级 Pro</button>
-        <button class="ghost">查看权益</button>
-      </div>
-    </div>
-  </section>
+<div class="card">
+<h2>🏷 AI主体贴纸</h2>
+<input id="file" type="file" accept="image/*" capture="environment">
+<button id="pick">上传图片</button>
+<div class="preview"><img id="preview"></div>
+<div id="info" class="info">等待图片</div>
+<button id="create">✨ AI抠图生成贴纸</button>
+<button id="save">💾保存到沙盘</button>
 </div>
 
-<div class="bottom">
-  <div class="bottom-inner">
-    <div class="tab active" data-page="home"><div class="icon">🏠</div><div>首页</div></div>
-    <div class="tab" data-page="camera"><div class="icon">📷</div><div>拍照</div></div>
-    <div class="tab" data-page="travel"><div class="icon">🗺</div><div>旅行</div></div>
-    <div class="tab" data-page="sticker"><div class="icon">🏷</div><div>贴纸</div></div>
-    <div class="tab" data-page="me"><div class="icon">👤</div><div>我的</div></div>
-  </div>
+<div class="card">
+<h2>🏖 旅行贴纸沙盘</h2>
+<div id="board" class="sandbox"></div>
+</div>
 </div>
 
-<script type="module">
-  import { removeBackground } from "https://esm.sh/@imgly/background-removal";
-  const STORAGE_KEY = "auroramap_history_v106";
-
-  const pages = {
-    home: document.getElementById("page-home"),
-    camera: document.getElementById("page-camera"),
-    travel: document.getElementById("page-travel"),
-    sticker: document.getElementById("page-sticker"),
-    me: document.getElementById("page-me")
-  };
-
-  document.querySelectorAll(".tab").forEach(tab => {
-    tab.addEventListener("click", () => showPage(tab.dataset.page));
-  });
-  document.querySelectorAll("[data-go]").forEach(btn => {
-    btn.addEventListener("click", () => showPage(btn.dataset.go));
-  });
-
-  function showPage(name){
-    Object.values(pages).forEach(p => p.classList.remove("active"));
-    pages[name].classList.add("active");
-    document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.page === name));
-    if(name === "travel") renderHistory();
-  }
-
-  function getHistory(){
-    try{return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]")}catch{return []}
-  }
-  function setHistory(list){
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-    updateOverview();
-  }
-  function countryToFlag(country = ""){
-    const c = country.toLowerCase();
-    if(c.includes("china")) return "🇨🇳";
-    if(c.includes("japan")) return "🇯🇵";
-    if(c.includes("indonesia")) return "🇮🇩";
-    if(c.includes("united states") || c.includes("usa")) return "🇺🇸";
-    if(c.includes("france")) return "🇫🇷";
-    if(c.includes("germany")) return "🇩🇪";
-    if(c.includes("korea")) return "🇰🇷";
-    if(c.includes("thailand")) return "🇹🇭";
-    if(c.includes("singapore")) return "🇸🇬";
-    if(c.includes("hong kong")) return "🇭🇰";
-    if(c.includes("australia")) return "🇦🇺";
-    if(c.includes("united kingdom") || c.includes("britain")) return "🇬🇧";
-    return "🌍";
-  }
-
-  function updateOverview(){
-    const list = getHistory();
-    const count = list.length;
-    const totalCny = list.reduce((s, x) => s + (Number(x.cny) || 0), 0);
-    document.getElementById("homeCount").textContent = count;
-    document.getElementById("homeTotalCNY").textContent = "¥" + totalCny.toFixed(2);
-    document.getElementById("travelCount").textContent = count;
-    document.getElementById("travelTotalCNY").textContent = "¥" + totalCny.toFixed(2);
-    const countryMap = {};
-    list.forEach(x => { const key = x.country || "未知"; countryMap[key] = (countryMap[key] || 0) + 1; });
-    const entries = Object.entries(countryMap).slice(0, 8);
-    document.getElementById("countryStats").innerHTML = entries.length ? entries.map(([k,v]) => `<div class="chip">${countryToFlag(k)} ${k} · ${v}</div>`).join("") : `<div class="muted">暂无旅行数据</div>`;
-  }
-
-  function renderHistory(){
-    const list = getHistory();
-    const box = document.getElementById("historyList");
-    const mapFlow = document.getElementById("mapFlow");
-    if(!list.length){
-      box.innerHTML = "暂无记录";
-      mapFlow.innerHTML = "暂无记录";
-      updateOverview();
-      return;
-    }
-    box.innerHTML = list.map(item => `
-      <div class="record">
-        <img src="${item.image || ""}" alt="">
-        <div>
-          <div class="title">${countryToFlag(item.country)} ${item.country || "未知国家"}</div>
-          <div>${item.symbol || ""}${item.amount || "-"} ${item.currencyCode || item.currency || ""}</div>
-          <div style="font-weight:900;color:#16a34a;margin-top:4px">≈ ¥${item.cny || "-"}</div>
-          <div class="sub">${item.time || ""}</div>
-          ${item.modeLabel ? `<div class="sub">模型：${item.modeLabel}</div>` : ``}
-        </div>
-      </div>`).join("");
-
-    mapFlow.innerHTML = list.map(item => `
-      <div class="map-dot">
-        <div class="map-badge">${countryToFlag(item.country)}</div>
-        <div>
-          <div style="font-weight:800">${item.country || "未知国家"}</div>
-          <div class="sub">${item.time || ""}</div>
-          <div>${item.symbol || ""}${item.amount || "-"} ${item.currencyCode || item.currency || ""} → <span style="color:#16a34a;font-weight:800">¥${item.cny || "-"}</span></div>
-        </div>
-      </div>`).join("");
-    updateOverview();
-  }
-
-  document.getElementById("clearHistoryBtn").addEventListener("click", () => {
-    if(confirm("确定清空所有旅行记录吗？")){
-      setHistory([]);
-      renderHistory();
-    }
-  });
-  document.getElementById("exportHistoryBtn").addEventListener("click", () => {
-    const blob = new Blob([JSON.stringify(getHistory(), null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "auroramap_history.json";
-    a.click();
-    URL.revokeObjectURL(url);
-  });
-
-  const geoSummary = document.getElementById("geoSummary");
-  const geoChips = document.getElementById("geoChips");
-  navigator.geolocation.getCurrentPosition(
-    pos => {
-      const lat = pos.coords.latitude, lon = pos.coords.longitude;
-      geoSummary.innerHTML = `已获取定位：纬度 ${lat.toFixed(2)} · 经度 ${lon.toFixed(2)}`;
-      let region = "自动模式", currency = "未判断", flag = "🌍";
-      if(lat > 18 && lat < 54 && lon > 73 && lon < 135){ region = "China"; currency = "CNY"; flag = "🇨🇳"; }
-      else if(lat > 24 && lat < 50 && lon < -60){ region = "United States"; currency = "USD"; flag = "🇺🇸"; }
-      else if(lat > 30 && lat < 46 && lon > 129 && lon < 146){ region = "Japan"; currency = "JPY"; flag = "🇯🇵"; }
-      else if(lat > -12 && lat < 7 && lon > 95 && lon < 141){ region = "Indonesia"; currency = "IDR"; flag = "🇮🇩"; }
-      geoChips.innerHTML = `<div class="chip">${flag} ${region}</div><div class="chip">默认货币：${currency}</div>`;
-    },
-    () => {
-      geoSummary.textContent = "未授权定位，可继续正常使用";
-      geoChips.innerHTML = `<div class="chip">🌍 手动模式</div>`;
-    }
-  );
-
-  let cameraImageBase64 = "";
-  let lastVoiceText = "";
-  const cameraFile = document.getElementById("cameraFile");
-  const cameraPreviewLabel = document.getElementById("cameraPreviewLabel");
-  const cameraPreviewImage = document.getElementById("cameraPreviewImage");
-  const cameraStatus = document.getElementById("cameraStatus");
-  const cameraResult = document.getElementById("cameraResult");
-
-  cameraFile.addEventListener("change", async e => {
-    const file = e.target.files?.[0];
-    if(!file) return;
-    cameraImageBase64 = await compressImage(file, 700, 0.45);
-    cameraPreviewLabel.classList.add("show");
-    cameraPreviewImage.src = cameraImageBase64;
-  });
-
-  function detectMode(base64){ return base64.length > 300000 ? "deep" : "fast"; }
-
-  document.getElementById("scanBtn").addEventListener("click", async () => {
-    if(!cameraImageBase64){ alert("请先上传图片"); return; }
-    const mode = detectMode(cameraImageBase64);
-    const modeLabel = mode === "fast" ? "gpt-6-sol（快速）" : "gpt-6-luna（深度）";
-    cameraStatus.innerHTML = mode === "fast" ? "⚡ 快速模式：正在使用 gpt-6-sol..." : "🧠 深度模式：正在使用 gpt-6-luna...";
-    cameraResult.innerHTML = "";
-    try{
-      const res = await fetch("/api/vision", {
-        method: "POST",
-        headers: { "Content-Type":"application/json" },
-        body: JSON.stringify({ image: cameraImageBase64, mode })
-      });
-      const data = await res.json();
-      if(data.error) throw new Error(data.error);
-      const flag = countryToFlag(data.country);
-      const currencyDisplay = data.currencyCode || data.currency || "-";
-      lastVoiceText = `${data.country || ""}，${data.symbol || ""}${data.amount || ""}，约人民币${data.cny || ""}元`;
-      cameraStatus.innerHTML = "✅ 识别完成";
-      cameraResult.innerHTML = `
-        <div class="result-card">
-          <div class="flag">${flag}</div>
-          <div style="font-size:20px;font-weight:900">${data.country || "未知国家"}</div>
-          <div class="muted" style="margin-top:6px">货币：${currencyDisplay}</div>
-          <div style="font-size:28px;font-weight:900;margin-top:8px">${data.symbol || ""}${data.amount || "-"}</div>
-          <div class="hr"></div>
-          <div class="muted">人民币换算</div>
-          <div class="money">¥${data.cny || "-"}</div>
-          <div class="small" style="margin-top:8px">使用模型：${modeLabel}</div>
-        </div>`;
-      const list = getHistory();
-      list.unshift({ id: Date.now(), country: data.country || "", currency: data.currency || "", currencyCode: data.currencyCode || "", symbol: data.symbol || "", amount: data.amount || "", cny: data.cny || "", image: cameraImageBase64, time: new Date().toLocaleString(), modeLabel });
-      setHistory(list.slice(0, 50));
-      renderHistory();
-    }catch(err){
-      cameraStatus.innerHTML = "❌ 识别失败";
-      cameraResult.innerHTML = `<div class="result-card">${err.message}</div>`;
-    }
-  });
-
-  document.getElementById("saveVoiceBtn").addEventListener("click", () => {
-    if(!lastVoiceText){ alert("暂无识别结果"); return; }
-    const u = new SpeechSynthesisUtterance(lastVoiceText);
-    u.lang = "zh-CN";
-    speechSynthesis.speak(u);
-  });
-
-  let stickerFileObj = null;
-  let stickerDownloadUrl = "";
-  const stickerFile = document.getElementById("stickerFile");
-  const stickerPreviewLabel = document.getElementById("stickerPreviewLabel");
-  const stickerInputPreview = document.getElementById("stickerInputPreview");
-  const stickerStatus = document.getElementById("stickerStatus");
-  const stickerResultImage = document.getElementById("stickerResultImage");
-
-  stickerFile.addEventListener("change", e => {
-    stickerFileObj = e.target.files?.[0] || null;
-    if(!stickerFileObj) return;
-    stickerPreviewLabel.classList.add("show");
-    stickerInputPreview.src = URL.createObjectURL(stickerFileObj);
-    stickerStatus.innerHTML = "已选择图片，点击生成贴纸";
-  });
-
-  document.getElementById("makeStickerBtn").addEventListener("click", async () => {
-    if(!stickerFileObj){ alert("请先上传图片"); return; }
-    stickerStatus.innerHTML = "✨ 正在识别主体并生成贴纸，请稍候...";
-    stickerResultImage.removeAttribute("src");
-    try{
-      const removedBlob = await removeBackground(stickerFileObj);
-      const stickerBlob = await buildStickerBlob(removedBlob, 18);
-      if(stickerDownloadUrl) URL.revokeObjectURL(stickerDownloadUrl);
-      stickerDownloadUrl = URL.createObjectURL(stickerBlob);
-      stickerResultImage.src = stickerDownloadUrl;
-      stickerStatus.innerHTML = "✅ 贴纸生成完成";
-    }catch(err){
-      stickerStatus.innerHTML = "❌ 贴纸生成失败：" + err.message;
-    }
-  });
-
-  document.getElementById("downloadStickerBtn").addEventListener("click", () => {
-    if(!stickerDownloadUrl){ alert("请先生成贴纸"); return; }
-    const a = document.createElement("a");
-    a.href = stickerDownloadUrl;
-    a.download = "auroramap-sticker.png";
-    a.click();
-  });
-
-  async function buildStickerBlob(inputBlob, border = 16){
-    const bmp = await createImageBitmap(inputBlob);
-    const w = bmp.width, h = bmp.height;
-    const srcCanvas = document.createElement("canvas");
-    srcCanvas.width = w; srcCanvas.height = h;
-    const sctx = srcCanvas.getContext("2d");
-    sctx.drawImage(bmp, 0, 0);
-
-    const maskCanvas = document.createElement("canvas");
-    maskCanvas.width = w; maskCanvas.height = h;
-    const mctx = maskCanvas.getContext("2d");
-    mctx.drawImage(srcCanvas, 0, 0);
-    const imgData = mctx.getImageData(0, 0, w, h);
-    for(let i=0;i<imgData.data.length;i+=4){
-      const a = imgData.data[i+3];
-      imgData.data[i] = 255; imgData.data[i+1] = 255; imgData.data[i+2] = 255; imgData.data[i+3] = a;
-    }
-    mctx.putImageData(imgData, 0, 0);
-
-    const outCanvas = document.createElement("canvas");
-    outCanvas.width = w + border*4;
-    outCanvas.height = h + border*4;
-    const octx = outCanvas.getContext("2d");
-    const cx = border*2, cy = border*2;
-    for(let ang=0; ang<360; ang+=10){
-      const rad = ang * Math.PI / 180;
-      const dx = Math.round(Math.cos(rad) * border);
-      const dy = Math.round(Math.sin(rad) * border);
-      octx.drawImage(maskCanvas, cx + dx, cy + dy);
-    }
-    octx.shadowColor = "rgba(0,0,0,.16)";
-    octx.shadowBlur = 16;
-    octx.shadowOffsetY = 8;
-    octx.drawImage(srcCanvas, cx, cy);
-    octx.shadowColor = "transparent";
-    return await new Promise(resolve => outCanvas.toBlob(resolve, "image/png"));
-  }
-
-  async function compressImage(file, maxWidth = 700, quality = 0.45){
-    const dataUrl = await fileToDataURL(file);
-    const img = await loadImage(dataUrl);
-    const ratio = Math.min(1, maxWidth / img.width);
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.max(1, Math.round(img.width * ratio));
-    canvas.height = Math.max(1, Math.round(img.height * ratio));
-    canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
-    return canvas.toDataURL("image/jpeg", quality);
-  }
-  function fileToDataURL(file){
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = e => resolve(e.target.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  }
-  function loadImage(src){
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => resolve(img);
-      img.onerror = reject;
-      img.src = src;
-    });
-  }
-
-  updateOverview();
-  renderHistory();
-</script>
-
-<div class="card sticker-pro-panel">
-<h3>🏷 AI贴纸工作室 Pro</h3>
-<p>上传图片 → AI识别主体 → 生成粗白边不规则贴纸</p>
-<div id="aiStickerInfo" class="sticker-badge">等待图片</div>
-<input id="proStickerInput" type="file" accept="image/*">
-<button id="proStickerUpload">上传图片</button>
-<img id="proStickerPreview" style="width:100%;border-radius:20px;margin-top:12px">
-<button id="proStickerMake">✨生成粗白边贴纸</button>
-<button id="proStickerSave">💾保存到沙盘</button>
-<div class="sticker-canvas" id="proStickerBoard">🏖 沙盘</div>
-</div>
+<nav>
+<div>🏠<br>首页</div>
+<div>📷<br>拍照</div>
+<div>🏷<br>贴纸</div>
+<div>👤<br>我的</div>
+</nav>
 
 <script>
-(()=>{
-let rawImage="";
-let stickerResult="";
-let items=JSON.parse(localStorage.getItem("aurora_sticker_pro")||"[]");
+let source="";
+let sticker="";
+let list=JSON.parse(localStorage.getItem("aurora_stickers_v109")||"[]");
 
-const input=document.getElementById("proStickerInput");
-const upload=document.getElementById("proStickerUpload");
-const preview=document.getElementById("proStickerPreview");
-const info=document.getElementById("aiStickerInfo");
-const board=document.getElementById("proStickerBoard");
+const $=id=>document.getElementById(id);
 
-upload.onclick=()=>input.click();
+$("pick").onclick=()=>file.click();
 
-input.onchange=e=>{
+file.onchange=e=>{
  const f=e.target.files[0];
  if(!f)return;
  const r=new FileReader();
  r.onload=x=>{
-  rawImage=x.target.result;
-  preview.src=rawImage;
-  info.innerHTML="图片已上传，等待AI主体识别";
+  source=x.target.result;
+  preview.src=source;
+  info.innerHTML="图片已上传";
  };
  r.readAsDataURL(f);
 };
 
-document.getElementById("proStickerMake").onclick=async()=>{
- if(!rawImage)return alert("请上传图片");
- info.innerHTML="🤖 AI分析主体中...";
+$("create").onclick=async()=>{
+ if(!source)return alert("请上传图片");
+ info.innerHTML="AI识别主体中...";
  try{
-  let r=await fetch("/api/sticker",{
+  const r=await fetch("/api/sticker",{
    method:"POST",
    headers:{"Content-Type":"application/json"},
-   body:JSON.stringify({image:rawImage})
+   body:JSON.stringify({image:source})
   });
-  let d=await r.json();
-  info.innerHTML="主体："+(d.subject||"已识别");
-
-  stickerResult=await thickBorder(rawImage);
-
-  preview.src=stickerResult;
+  const d=await r.json();
+  info.innerHTML="主体："+(d.subject||"物品")+" / "+(d.type||"object");
+  sticker=await makeSticker(source);
+  preview.src=sticker;
  }catch(e){
-  info.innerHTML="生成失败，使用基础贴纸模式";
-  stickerResult=await thickBorder(rawImage);
-  preview.src=stickerResult;
+  info.innerHTML="生成失败";
  }
 };
 
-document.getElementById("proStickerSave").onclick=()=>{
- if(!stickerResult)return alert("请先生成贴纸");
- items.push({img:stickerResult,x:30,y:30,r:Math.random()*20-10});
- localStorage.setItem("aurora_sticker_pro",JSON.stringify(items));
+$("save").onclick=()=>{
+ if(!sticker)return;
+ list.push({img:sticker,x:30+list.length*10,y:30+list.length*10,r:0});
+ localStorage.setItem("aurora_stickers_v109",JSON.stringify(list));
  render();
 };
 
 function render(){
  board.innerHTML="";
- items.forEach((s)=>{
-  let i=document.createElement("img");
-  i.src=s.img;
-  i.className="sticker-item";
-  i.style.left=s.x+"px";
-  i.style.top=s.y+"px";
-  i.style.transform="rotate("+s.r+"deg)";
-  drag(i,s);
-  board.appendChild(i);
+ list.forEach((s,i)=>{
+  const img=document.createElement("img");
+  img.src=s.img;
+  img.className="sticker";
+  img.style.left=s.x+"px";
+  img.style.top=s.y+"px";
+  img.style.transform="rotate("+s.r+"deg)";
+  drag(img,s);
+  board.appendChild(img);
  });
 }
 
 function drag(el,obj){
- let down=false;
- el.onpointerdown=e=>{
-  down=true;
-  let ox=e.clientX-obj.x;
-  let oy=e.clientY-obj.y;
-  el.onpointermove=e=>{
-   if(!down)return;
-   obj.x=e.clientX-ox;
-   obj.y=e.clientY-oy;
+ let sx,sy;
+ el.ontouchstart=e=>{
+  let t=e.touches[0];
+  sx=t.clientX-obj.x; sy=t.clientY-obj.y;
+  el.ontouchmove=e=>{
+   let t=e.touches[0];
+   obj.x=t.clientX-sx;
+   obj.y=t.clientY-sy;
    el.style.left=obj.x+"px";
    el.style.top=obj.y+"px";
-  };
-  el.onpointerup=()=>{
-   down=false;
-   localStorage.setItem("aurora_sticker_pro",JSON.stringify(items));
   };
  };
 }
 
-async function thickBorder(src){
+function makeSticker(src){
  return new Promise(resolve=>{
-  let img=new Image();
-  img.onload=()=>{
+  let i=new Image();
+  i.onload=()=>{
    let c=document.createElement("canvas");
-   let b=90;
-   c.width=img.width+b*2;
-   c.height=img.height+b*2;
-   let ctx=c.getContext("2d");
-   ctx.shadowColor="white";
-   ctx.shadowBlur=90;
-   ctx.drawImage(img,b,b);
-   ctx.shadowBlur=0;
-   ctx.drawImage(img,b,b);
+   let b=100;
+   c.width=i.width+b*2;
+   c.height=i.height+b*2;
+   let x=c.getContext("2d");
+   x.shadowColor="#fff";
+   x.shadowBlur=100;
+   x.drawImage(i,b,b);
+   x.shadowBlur=0;
+   x.drawImage(i,b,b);
    resolve(c.toDataURL("image/png"));
   };
-  img.src=src;
+  i.src=src;
  });
 }
 
 render();
-})();
 </script>
 </body>
 </html>
